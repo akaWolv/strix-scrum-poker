@@ -154,6 +154,8 @@ class RoomVotingPanel extends React.Component {
     }
 
     renderInProcess() {
+        const previousUserVote = VotingStore.getUserPreviousVote();
+
         return (
             <div style={styles.root}>
                 <GridList
@@ -171,8 +173,9 @@ class RoomVotingPanel extends React.Component {
                     </GridTile>
                     {this.props.sequence.map((elem) => (
                         <GridTile
+                            style={elem.value === previousUserVote ? {filter: 'brightness(1.5)'} : {}}
                             key={elem.value}
-                            title={undefined == elem.title || 0 == elem.title.length ? '' : elem.title} >
+                            title={undefined === elem.title || 0 === elem.title.length ? '' : elem.title} >
                             <FlatButton
                                 label={elem.value}
                                 style={this.sequenceStyle(elem.value, styles.sequence_picker)}
@@ -181,6 +184,7 @@ class RoomVotingPanel extends React.Component {
                         </GridTile>
                     ))}
                     <GridTile
+                        style={'?' === previousUserVote ? {filter: 'brightness(1.5)'} : {}}
                         key='?' >
                         <FlatButton
                             label={<ActionHelpOutline style={{width: '30%', height: '30%'}} />}
@@ -189,6 +193,7 @@ class RoomVotingPanel extends React.Component {
                             secondary={true} />
                     </GridTile>
                     <GridTile
+                        style={'big' === previousUserVote ? {filter: 'brightness(1.5)'} : {}}
                         key='big' >
                         <FlatButton
                             label={<ActionAccessibility style={{width: '30%', height: '30%'}} />}
@@ -197,6 +202,7 @@ class RoomVotingPanel extends React.Component {
                             secondary={true} />
                     </GridTile>
                     <GridTile
+                        style={'cafe' === previousUserVote ? {filter: 'brightness(1.5)'} : {}}
                         key='cafe' >
                         <FlatButton
                             label={<MapsLocalCafe style={{width: '30%', height: '30%'}} />}
@@ -210,7 +216,7 @@ class RoomVotingPanel extends React.Component {
     }
     sequenceStyle(value, style) {
         let returnStyle = {};
-        if (undefined != this.state.vote_picked && value == this.state.vote_picked) {
+        if (undefined !== this.state.vote_picked && value === this.state.vote_picked) {
             Object.assign(returnStyle, style, styles.sequence_picker_picked);
         } else {
             returnStyle = style;
@@ -231,7 +237,7 @@ class RoomVotingPanel extends React.Component {
                 </h4>
                 <h4 style={styles.header_text_finished}>
                     {
-                        undefined == this.state.vote_picked || 'cancel' == this.state.vote_picked
+                        undefined === this.state.vote_picked || 'cancel' === this.state.vote_picked
                         ? texts.not_voted
                         : texts.you_voted + ' \'' + this.state.vote_picked + '\''
                     }
@@ -247,7 +253,7 @@ class RoomVotingPanel extends React.Component {
             case VotingConstants.STATUS_IN_PROCESS:
                 return this.renderInProcess();
             case VotingConstants.STATUS_FINISHED:
-                return this.renderFinished();
+                return null; // this.renderFinished();
         }
     }
 

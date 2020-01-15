@@ -3,6 +3,7 @@ import { EventEmitter } from 'events';
 import VotingConstants from '../constants/VotingConstants';
 import StoreMixin from '../mixins/StoreMixin';
 import Socket from '../handlers/SocketSession'
+import UserStore from "./UserStore";
 
 var _votingDetails = {
     id: undefined,
@@ -18,7 +19,8 @@ var _votingDetails = {
     ],
     vote: undefined,
     users_already_voted: [],
-    users_votes: {}
+    users_votes: {},
+    previous_users_votes: {}
 };
 
 var VotingStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
@@ -43,6 +45,13 @@ var VotingStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
         return _votingDetails.users_votes;
     },
 
+    getUserPreviousVote: function () {
+        if (undefined !== _votingDetails.previous_users_votes[UserStore.getUserId()]) {
+            return _votingDetails.previous_users_votes[UserStore.getUserId()];
+        }
+        return undefined;
+    },
+
     getUserVote: function () {
         return _votingDetails.vote;
     },
@@ -57,7 +66,7 @@ var VotingStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
                 Socket.session.emit('change_voting_status', {status: VotingConstants.STATUS_FINISHED});
                 break;
             case VotingConstants.ACTION_CONTINUE_VOTING:
-                Socket.session.emit('change_voting_status', {status: VotingConstants.STATUS_IN_PROCESS});
+                Socket.session.emit('change_voting_status', {status: VotingConstants.STATUS_CONTINUE});
                 break;
             case VotingConstants.ACTION_STOP_VOTING:
                 Socket.session.emit('change_voting_status', {status: VotingConstants.STATUS_PENDING});
@@ -111,6 +120,14 @@ Socket.session.on('users_votes', function (msg) {
 Socket.session.on('user_last_vote', function (msg) {
     _votingDetails.vote = msg;
     VotingStore.emit(VotingConstants.EVENT_USER_VOTE);
+});
+
+Socket.session.on('keep_previous_users_votes', function () {
+    _votingDetails.previous_users_votes = _votingDetails.users_votes;
+});
+
+Socket.session.on('forget_previous_users_votes', function () {
+    _votingDetails.previous_users_votes = {};
 });
 
 

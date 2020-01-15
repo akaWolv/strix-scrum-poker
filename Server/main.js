@@ -48,10 +48,13 @@ const CANCEL_VOTE = 'cancel_vote';
 const STATUS_PENDING = 'STATUS_PENDING';
 const STATUS_IN_PROCESS = 'STATUS_IN_PROCESS';
 const STATUS_FINISHED = 'STATUS_FINISHED';
+const STATUS_CONTINUE = 'STATUS_CONTINUE';
 //VOTING EMMITS
 const EMIT_USERS_ALREADY_VOTED = 'users_already_voted';
 const EMIT_USERS_VOTES = 'users_votes';
 const EMIT_USER_LAST_VOTE = 'user_last_vote';
+const EMIT_KEEP_PREVIOUS_USERS_VOTES = 'keep_previous_users_votes';
+const EMIT_FORGET_PREVIOUS_USERS_VOTES = 'forget_previous_users_votes';
 
 const CONNECTIONS_LOG = [];
 
@@ -355,6 +358,7 @@ function application() {
                     (err, vote) => _emitUsersThatAlreadyHaveVoted()
                 );
                 emitter(socket, EMIT_USER_LAST_VOTE, msg.vote);
+                _finishIfAllVotesCollected();
             }
         });
 
@@ -373,34 +377,50 @@ function application() {
             if (
                 undefined !== msg.status
                 && undefined !== socket.user_details.room_id
-                && -1 < [STATUS_PENDING, STATUS_IN_PROCESS, STATUS_FINISHED].indexOf(msg.status)
+                && -1 < [STATUS_PENDING, STATUS_IN_PROCESS, STATUS_FINISHED, STATUS_CONTINUE].indexOf(msg.status)
             ) {
-                forAdmin(function (roomsDetails) {
-                    roomsDetails.voting_status = msg.status;
-                    repo.saveRoom(roomsDetails);
-
-                    switch (msg.status) {
-                        case STATUS_PENDING:
-                            clearVotes(roomsDetails.id);
-                            roomEmitter(EMIT_USER_LAST_VOTE, undefined);
-                            break;
-                        case STATUS_IN_PROCESS:
-                            hideVotes(roomsDetails.id);
-                            repo.getUserVote(
-                                roomsDetails.id,
-                                socket.user_details.id,
-                                (err, vote) => emitter(socket, EMIT_USER_LAST_VOTE, vote)
-                            );
-                            break;
-                        case STATUS_FINISHED:
-                            showVotes(roomsDetails.id);
-                            break;
-                    }
-
-                    _emitRoomDetails(roomsDetails.id)
+                forAdmin(function (roomDetails) {
+                    _changeVotingSatus(msg.status, roomDetails);
                 });
             }
         });
+
+        function _changeVotingSatus(status, roomDetails) {
+                roomDetails.voting_status = status === STATUS_CONTINUE ? STATUS_IN_PROCESS : status;
+                repo.saveRoom(roomDetails);
+
+                switch (status) {
+                    case STATUS_PENDING:
+                        clearVotes();
+                        roomEmitter(EMIT_USER_LAST_VOTE, undefined);
+                        forgetPreviousVotes();
+                        break;
+                    case STATUS_IN_PROCESS:
+                        hideVotes();
+                        roomEmitter(EMIT_USER_LAST_VOTE, undefined);
+                        // repo.getUserVote(
+                        //     roomsDetails.id,
+                        //     socket.user_details.id,
+                        //     (err, vote) => emitter(socket, EMIT_USER_LAST_VOTE, vote)
+                        // );
+                        break;
+                    case STATUS_CONTINUE:
+                        keepPreviousVotes();
+                        clearVotes();
+                        roomEmitter(EMIT_USER_LAST_VOTE, undefined);
+                        // repo.getUserVote(
+                        //     roomsDetails.id,
+                        //     socket.user_details.id,
+                        //     (err, vote) => emitter(socket, EMIT_USER_LAST_VOTE, vote)
+                        // );
+                        break;
+                    case STATUS_FINISHED:
+                        showVotes();
+                        break;
+                }
+
+                _emitRoomDetails(roomDetails.id)
+        }
 
         function _emitUsersThatAlreadyHaveVoted() {
             repo.getVotesInRoom(
@@ -415,18 +435,42 @@ function application() {
             );
         }
 
-        function clearVotes(roomId) {
-            repo.removeVotings(roomId);
+        function _finishIfAllVotesCollected() {
+            repo.getVotesInRoom(
+                socket.user_details.room_id,
+                function (err, voteList) {
+                    repo.getUsersInRoom(socket.user_details.room_id, function (err, users) {
+                        if (users.length === voteList.length) {
+                            console.log('>>>>>>>>>>>>>');
+                            withRoomDetails(function (roomDetails) {
+                                _changeVotingSatus(STATUS_FINISHED, roomDetails);
+                            });
+                        }
+                    })
+                }
+            );
+        }
+
+        function clearVotes() {
+            repo.removeVotings(socket.user_details.room_id);
             roomEmitter(EMIT_USERS_VOTES, {});
-            roomEmitter(EMIT_USERS_ALREADY_VOTED);
+            roomEmitter(EMIT_USERS_ALREADY_VOTED, []);
         }
 
         function hideVotes() {
             roomEmitter(EMIT_USERS_VOTES, {});
         }
 
-        function showVotes(room_id) {
-            repo.getVotesInRoom(room_id, function (err, votes) {
+        function keepPreviousVotes() {
+            roomEmitter(EMIT_KEEP_PREVIOUS_USERS_VOTES, {});
+        }
+
+        function forgetPreviousVotes() {
+            roomEmitter(EMIT_FORGET_PREVIOUS_USERS_VOTES, {});
+        }
+
+        function showVotes() {
+            repo.getVotesInRoom(socket.user_details.room_id, function (err, votes) {
                 let userVotes = {};
                 if (undefined !== votes) {
                     for (let k in votes) {
@@ -453,7 +497,7 @@ function application() {
                     emitter(socket, EMIT_USER_LAST_VOTE, lastUserVote);
 
                     if (roomsDetails.voting_status === STATUS_FINISHED) {
-                        showVotes(roomsDetails.id);
+                        showVotes();
                     }
                 }
             });
@@ -479,6 +523,12 @@ function application() {
                 if (undefined !== roomDetails.id && roomDetails.admin === socket.user_details.id) {
                     f(roomDetails);
                 }
+            });
+        }
+
+        function withRoomDetails(f) {
+            repo.getRoomDetails(socket.user_details.room_id, function (err, roomDetails) {
+                f(roomDetails);
             });
         }
 
@@ -550,8 +600,8 @@ function application() {
 // console.log('>>>>>> adminFound: ' + adminFound);
             if (adminFound === 0) {
                 _changeAdmin(roomDetails.id);
-            // } else {
-            //     console.log(roomDetails);
+                // } else {
+                //     console.log(roomDetails);
             }
         }
     }

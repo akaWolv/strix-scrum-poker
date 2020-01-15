@@ -63,7 +63,7 @@ class UserDetails extends React.Component {
             alert('No room?');
             // StateMachine.changeState(StatesConstants.ROOM_JOIN);
         } else {
-            alert(props.room_id);
+            // alert(props.room_id);
         }
 
         this.state = {
