@@ -1,11 +1,11 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
 import RoomConstants from '../constants/RoomConstants';
 import Socket from "../handlers/SocketSession";
-import RoomStore from "../stores/RoomStore";
 
 var RoomActions = {
     create: function(details) {
-        AppDispatcher.handleViewAction(RoomConstants.ACTION_CREATE_NEW_ROOM, details);
+        const {name, password, sequence} = details;
+        Socket.session.emit('create_room', {name, password, sequence});
     },
 
     joinRoomByNameAndPassword: function(name, password) {

@@ -3,13 +3,10 @@
 import React from 'react';
 import {Link} from 'react-router'
 
-import {CardHeader, CardText} from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
-import Cookies from 'cookies-js';
 import Footer from '../components/Footer';
 import UserStore from '../stores/UserStore';
-import RoomConstants from '../constants/RoomConstants';
 import StatesConstants from "../constants/StatesConstants";
 import Socket from '../handlers/SocketSession'
 
@@ -54,7 +51,6 @@ class Welcome extends React.Component {
         };
 
         this.listeners = {};
-        // this.listeners.user_details = UserStore.registerListener(RoomConstants.EVENT_USER_DETAILS, this.onChangeUserDetails.bind(this));
     }
 
     componentWillUnmount() {
@@ -70,7 +66,6 @@ class Welcome extends React.Component {
     }
 
     render() {
-        Socket.session.emit('terefere');
         return (
             <div>
                 <div className="row center-xs">

@@ -8,7 +8,7 @@ class Connecting extends React.Component {
             <div style={{color: 'whitesmoke', textAlign: 'center'}}>
                 <h1>One moment please!</h1>
                 <br />
-                Server Hamsters are getting ready...
+                Server is getting ready...
             </div>
         );
     }

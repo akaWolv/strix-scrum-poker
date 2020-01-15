@@ -11,7 +11,7 @@ export default {
     ROOM_JOIN: '/join_room',
     // ROOM_JOIN: '/create_room',
     // USER_DETAILS: '/user_details/:autoregister',
-    // USER_DETAILS: '/user_details',
-    USER_DETAILS: '/room/:room_id/user_details',
+    USER_DETAILS: '/user_details',
+    // USER_DETAILS: '/room/:room_id/user_details',
     ROOM_DISPLAY: '/display_room'
 };

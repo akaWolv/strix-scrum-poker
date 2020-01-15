@@ -68,12 +68,15 @@ class RoomCreate extends React.Component {
             room_password_valid: true,
             sequence_hint:  props.available_sequences[0].hint
         };
-        this.listeners = {};
+
+        this.listeners = [
+            RoomStore.registerListener(RoomConstants.EVENT_ROOM_DETAILS_UPDATE, RoomCreate.onJoinedRoom)
+        ];
     }
 
-    // onJoinedRoom(a, b, c) {
-    //     StateMachine.changeState(StatesConstants.ROOM + '/' + RoomStore.getRoomId());
-    // }
+    static onJoinedRoom() {
+        StateMachine.changeState(StatesConstants.ROOM.replace(':room_id', RoomStore.getRoomId()));
+    }
 
     componentWillUnmount() {
         for (let k in this.listeners) {
@@ -182,7 +185,7 @@ class RoomCreate extends React.Component {
 
 RoomCreate.contextTypes = {
     router:  React.PropTypes.object
-}
+};
 RoomCreate.defaultProps = {
     available_sequences: [
         {

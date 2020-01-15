@@ -1,7 +1,6 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
 import { EventEmitter } from 'events';
 import RoomConstants from '../constants/RoomConstants';
-import uuid from 'uuid';
 import RoomActions from '../actions/RoomActions';
 import Socket from '../handlers/SocketSession'
 import Cookies from 'cookies-js';
@@ -42,6 +41,21 @@ var UserStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
         return _userDetails;
     },
 
+    setUserDetails: function (id, name, roomId) {
+        _userDetails.id = id;
+        _userDetails.name = name;
+        _userDetails.room_id = roomId;
+
+        Cookies
+            .set('_userDetails.id', _userDetails.id)
+            .set('_userDetails.name', _userDetails.name)
+            .set('_userDetails.room_id', _userDetails.room_id);
+
+        UserStore.emit(RoomConstants.EVENT_USER_DETAILS);
+        console.log(_userDetails);
+        return _userDetails;
+    },
+
     dispatcherIndex: AppDispatcher.register(function (payload) {
         switch (payload.action) {
             // case RoomConstants.ACTION_REGISTER_USER_BY_ID:
@@ -77,19 +91,12 @@ var UserStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
 });
 
 Socket.session.on('user_details', function (msg) {
-    _userDetails.id = msg.id;
-    _userDetails.name = msg.name;
-    _userDetails.room_id = undefined !== msg.room_id ? msg.room_id : undefined;
-
-    Cookies
-        .set('_userDetails.id', _userDetails.id)
-        .set('_userDetails.name', _userDetails.name)
-        .set('_userDetails.room_id', _userDetails.room_id);
-
-    console.log('user_details');
-    console.log(_userDetails);
-
-    UserStore.emit(RoomConstants.EVENT_USER_DETAILS);
+    console.log('register_user_success');
+    UserStore.setUserDetails(
+        msg.id,
+        msg.name,
+        undefined !== msg.room_id ? msg.room_id : undefined
+    );
 });
 
 Socket.session.on('user_not_found', function () {
@@ -97,16 +104,13 @@ Socket.session.on('user_not_found', function () {
     clearUserDetails();
 });
 
-// Socket.session.on('register_user_success', function () {
-//     UserStore.emit(RoomConstants.EVENT_USER_REGISTERED);
-// });
-
 Socket.session.on('register_user_already_exists', function () {
     UserStore.emit(RoomConstants.EVENT_REGISTER_USER_ALREADY_EXISTS);
 });
 
 Socket.session.on('register_user_fail', function () {
     UserStore.emit(RoomConstants.EVENT_USER_REGISTER_FAIL);
+    StateMachine.changeState(StatesConstants.USER_DETAILS);
 });
 
 Socket.session.on('join_room_anonymous', function (msg) {
@@ -115,9 +119,9 @@ Socket.session.on('join_room_anonymous', function (msg) {
     if (usersId !== undefined) {
         console.log('introduce_myself: found id in cookie try to register: ' + usersId);
         RoomActions.registerUserById(usersId);
-    } else {
-        console.log('introduce_myself: unknown user - no details saved - redirect to user details');
-        StateMachine.changeState(StatesConstants.USER_DETAILS.replace(':room_id', RoomStore.getRoomId()));
+    // } else {
+    //     console.log('introduce_myself: unknown user - no details saved - redirect to user details');
+    //     StateMachine.changeState(StatesConstants.USER_DETAILS.replace(':room_id', RoomStore.getRoomId()));
     }
 });
 

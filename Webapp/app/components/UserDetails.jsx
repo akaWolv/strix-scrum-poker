@@ -58,17 +58,20 @@ const texts = {
 class UserDetails extends React.Component {
     constructor(props) {
         super(props);
+
+        if (undefined === props.room_id) {
+            alert('No room?');
+            // StateMachine.changeState(StatesConstants.ROOM_JOIN);
+        } else {
+            alert(props.room_id);
+        }
+
         this.state = {
             user_name:  '',
             user_name_error: false
         };
         this.listeners = {};
 
-        if (undefined !== props.routeParams.room_id) {
-            RoomStore.setRoomId(props.routeParams.room_id);
-        } else {
-            alert('Invalid Room');
-        }
     }
 
     componentWillUnmount() {
@@ -140,7 +143,8 @@ class UserDetails extends React.Component {
 }
 
 UserDetails.contextTypes = {
-    router: function() { return React.PropTypes.func.isRequired; }
+    room_id: function() { return React.PropTypes.number.isRequired; }
+    // router: function() { return React.PropTypes.func.isRequired; }
 };
 
 export default UserDetails;

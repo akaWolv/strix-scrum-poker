@@ -38,6 +38,7 @@ var RoomStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
             voting_status: undefined !== roomDetails.voting_status ? roomDetails.voting_status : undefined,
             password: undefined !== roomDetails.password ? roomDetails.password : undefined,
         };
+        RoomStore.emit(RoomConstants.EVENT_ROOM_DETAILS_UPDATE);
     },
     setRoomId: function (room_id) {
          _roomDetails.id = room_id;
@@ -103,7 +104,6 @@ Socket.session.on('join_room_success', function (msg) {
     if (undefined !== msg.id) {
         StateMachine.changeState(StatesConstants.ROOM.replace(':room_id', msg.id));
         RoomStore.setRoomDetails(msg);
-        RoomStore.emit(RoomConstants.EVENT_ROOM_DETAILS_UPDATE);
     }
 });
 
@@ -116,26 +116,27 @@ Socket.session.on('join_room_success', function (msg) {
 // });
 
 Socket.session.on('join_room_anonymous', function (msg) {
+    // StateMachine.changeState(StatesConstants.ROOM.replace(':room_id', msg.id));
     console.log('join ROOOOOOM but who ARE you???');
     console.log(msg);
     if (null !== msg && undefined !== msg.id) {
         RoomStore.setRoomDetails(msg);
-        StateMachine.changeState(StatesConstants.ROOM.replace(':room_id', msg.id));
+        // StateMachine.changeState(StatesConstants.ROOM.replace(':room_id', msg.id));
     }
+
+    // let usersId = Cookies.get('_userDetails.id');
+    // if (usersId !== undefined) {
+    //     console.log('introduce_myself: found id in cookie try to register: ' + usersId);
+    //     RoomActions.registerUserById(usersId);
+    // }
 });
 
 Socket.session.on('room_details', function (msg) {
-    _roomDetails = {
-        id: msg.id,
-        name: msg.name,
-        sequence: msg.sequence,
-        admin: msg.admin,
-        users: msg.users,
-        voting_status: msg.voting_status,
-        password: msg.password
-    };
+    RoomStore.setRoomDetails(msg);
+});
 
-    RoomStore.emit(RoomConstants.EVENT_ROOM_DETAILS_UPDATE);
+Socket.session.on('join_room_anonymous', function (msg) {
+    RoomStore.setRoomDetails(msg);
 });
 
 export default RoomStore;

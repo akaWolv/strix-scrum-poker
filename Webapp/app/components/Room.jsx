@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router'
 import RoomStore from '../stores/RoomStore';
 import Paper from 'material-ui/Paper';
 
@@ -16,8 +15,6 @@ import VotingAction from '../actions/VotingActions';
 
 import Avatar from 'material-ui/Avatar';
 import {List, ListItem} from 'material-ui/List';
-import Subheader from 'material-ui/Subheader';
-import Divider from 'material-ui/Divider';
 import ActionDone from 'material-ui/svg-icons/action/done';
 import ActionHourGlass from 'material-ui/svg-icons/action/hourglass-empty';
 import ActionEventSeat from 'material-ui/svg-icons/action/event-seat';
@@ -27,6 +24,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import _ from 'underscore';
 import Footer from '../components/Footer';
 import BackBox from '../components/BackBox.jsx';
+import UserDetails from "./UserDetails.jsx";
 
 const styles = {
     paper_info: {
@@ -103,6 +101,7 @@ class Room extends React.Component {
 
         this.listeners = [
             RoomStore.registerListener(RoomConstants.EVENT_ROOM_DETAILS_UPDATE, this.onChangeRoomDetails.bind(this)),
+            UserStore.registerListener(RoomConstants.EVENT_USER_DETAILS, this.onChangeRoomDetails.bind(this)),
             // RoomStore.registerListener(RoomConstants.EVENT_ROOM_NOT_FOUND, this.onRoomNotFound.bind(this)),
             VotingStore.registerListener(VotingConstants.EVENT_USERS_ALREADY_VOTED, this.onChangeUsersAlreadyVoted.bind(this)),
             VotingStore.registerListener(VotingConstants.EVENT_USERS_VOTES, this.onChangeUsersVotes.bind(this))
@@ -148,6 +147,7 @@ class Room extends React.Component {
     }
 
     onChangeRoomDetails() {
+        console.log('onChangeRoomDetails');
         let roomDetails = RoomStore.getRoomDetails();
 
         this.detectAdminChange(this.state.room_admin, roomDetails.admin);
@@ -159,7 +159,9 @@ class Room extends React.Component {
             room_admin: roomDetails.admin,
             room_password: roomDetails.password,
             room_users: roomDetails.users,
-            voting_status: roomDetails.voting_status
+            voting_status: roomDetails.voting_status,
+            user_id: UserStore.getUserId(),
+            user_name: UserStore.getUserName(),
         });
     }
 
@@ -288,13 +290,13 @@ class Room extends React.Component {
 
     renderStatusIcon(usersId) {
         if (VotingConstants.STATUS_IN_PROCESS === this.state.voting_status) {
-            if (undefined != this.state.users_already_voted && -1 < this.state.users_already_voted.indexOf(usersId)) {
+            if (undefined !== this.state.users_already_voted && -1 < this.state.users_already_voted.indexOf(usersId)) {
                 return <ActionDone style={styles.users_list_status_icon} color={lime600} />;
             } else {
                 return <ActionHourGlass style={styles.users_list_status_icon} color={orange400} />;
             }
         } else if (VotingConstants.STATUS_FINISHED === this.state.voting_status) {
-            if (undefined != this.state.users_votes[usersId]) {
+            if (undefined !== this.state.users_votes[usersId]) {
                 return <span style={styles.users_list_status_icon}><b>{this.state.users_votes[usersId]}</b></span>;
             } else {
                 return <span style={styles.users_list_status_icon}><i>no vote</i></span>;
@@ -305,82 +307,90 @@ class Room extends React.Component {
     }
 
     render() {
-        return (
-            <div>
-                <div className="row center-xs">
-                    <div className="col-xs-12  col-sm-6  col-md-4">
-                        <div className="box">
-                            <Paper style={styles.paper_info} zDepth={1}>
-                                <div style={styles.text_box_info}>
-                                    <h4>{texts.header}{this.state.room_name}</h4>
-                                    <div style={styles.text_box_info_details}>
-                                        <p>
-                                            {texts.password}
-                                            <b>{this.state.room_password}</b>
-                                        </p>
-                                        <p>
-                                            {texts.connected_info}
-                                            <b>{Object.keys(this.state.room_users).length}</b>
-                                        </p>
-                                        <p>
-                                            {texts.voting_status}
-                                            <b>{texts.voting_status_text[this.state.voting_status]}</b>
-                                        </p>
+        const {room_id, user_id} = this.state;
+
+        console.log('user_id: ' + user_id + ' room_id:' + room_id);
+        if (undefined === user_id && undefined === room_id) {
+            return <div><center><br /><br />Connecting to Room...</center></div>;
+        } else if (undefined === user_id) {
+            return <UserDetails room_id={room_id} />;
+        } else {
+            return (<div>
+                    <div className="row center-xs">
+                        <div className="col-xs-12  col-sm-6  col-md-4">
+                            <div className="box">
+                                <Paper style={styles.paper_info} zDepth={1}>
+                                    <div style={styles.text_box_info}>
+                                        <h4>{texts.header}{this.state.room_name}</h4>
+                                        <div style={styles.text_box_info_details}>
+                                            <p>
+                                                {texts.password}
+                                                <b>{this.state.room_password}</b>
+                                            </p>
+                                            <p>
+                                                {texts.connected_info}
+                                                <b>{Object.keys(this.state.room_users).length}</b>
+                                            </p>
+                                            <p>
+                                                {texts.voting_status}
+                                                <b>{texts.voting_status_text[this.state.voting_status]}</b>
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            </Paper>
+                                </Paper>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="row center-xs">
-                    <div className="col-xs-12  col-sm-6  col-md-4">
-                        <div className="box">
-                            {this.renderAdminPanel()}
+                    <div className="row center-xs">
+                        <div className="col-xs-12  col-sm-6  col-md-4">
+                            <div className="box">
+                                {this.renderAdminPanel()}
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="row center-xs">
-                    <div className="col-xs-12  col-sm-6  col-md-4">
-                        <div className="box">
-                            <RoomVotingPanel
-                                voting_status={this.state.voting_status}/>
+                    <div className="row center-xs">
+                        <div className="col-xs-12  col-sm-6  col-md-4">
+                            <div className="box">
+                                <RoomVotingPanel
+                                    voting_status={this.state.voting_status}/>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="row center-xs">
-                    <div className="col-xs-12  col-sm-6  col-md-4">
-                        <div className="box">
-                            <Paper style={styles.paper_users_list} zDepth={1}>
-                                <div style={styles.paper_users_list_box}>
-                                    <h4>{texts.user_status}</h4>
-                                </div>
-                                <List>
-                                    {_.toArray(this.state.room_users).map(function (element) {
-                                        return (
-                                            <ListItem
-                                                key={element.id}
-                                                primaryText={undefined === element.name ? '...' : element.name}
-                                                leftAvatar={<Avatar src="" />}>
-                                                { this.renderStatusIcon(element.id) }
-                                            </ListItem>
-                                        )
-                                    }.bind(this))}
-                                </List>
-                            </Paper>
+                    <div className="row center-xs">
+                        <div className="col-xs-12  col-sm-6  col-md-4">
+                            <div className="box">
+                                <Paper style={styles.paper_users_list} zDepth={1}>
+                                    <div style={styles.paper_users_list_box}>
+                                        <h4>{texts.user_status}</h4>
+                                    </div>
+                                    <List>
+                                        {_.toArray(this.state.room_users).map(function (element) {
+                                            return (
+                                                <ListItem
+                                                    key={element.id}
+                                                    primaryText={undefined === element.name ? '...' : element.name}
+                                                    leftAvatar={<Avatar src="" />}>
+                                                    { this.renderStatusIcon(element.id) }
+                                                </ListItem>
+                                            )
+                                        }.bind(this))}
+                                    </List>
+                                </Paper>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="row center-xs">
-                    <div className="col-xs-12  col-sm-6  col-md-4">
-                        <div className="box">
-                            {this.renderAdminPanel2()}
+                    <div className="row center-xs">
+                        <div className="col-xs-12  col-sm-6  col-md-4">
+                            <div className="box">
+                                {this.renderAdminPanel2()}
+                            </div>
                         </div>
                     </div>
+                    <BackBox backLink={StatesConstants.WELCOME} backText="Back to dashboard"/>
+                    <Footer />
                 </div>
-                <BackBox backLink={StatesConstants.WELCOME} backText="Back to dashboard"/>
-                <Footer />
-            </div>
-        );
+            );
+        }
     }
 }
 

@@ -65,10 +65,6 @@ function application() {
             room_id: undefined
         };
 
-        socket.on(DISCONNECT, function () {
-            repo.removeRoomConnectionFromUser(socket.user_details.id);
-        });
-
         /**
          * CREATE_ROOM
          */
@@ -146,7 +142,7 @@ function application() {
                     function (err, roomDetails) {
                         if (undefined !== roomDetails.id) {
                             // join created room
-                            joinRoom(roomDetails)
+                            joinRoom(roomDetails);
                             _infoLog('room found and joined');
                         } else {
                             emitter(socket, EMIT_ROOM_NOT_FOUND);
@@ -172,18 +168,16 @@ function application() {
          * LEAVE_ROOM
          */
         socket.on(LEAVE_ROOM, function () {
-            _cancelVote();
+            _infoLog('>> LEAVE_ROOM: ');
+            _disconnectUser();
+        });
 
-            let room_id = socket.user_details.room_id;
-
-            if (undefined !== room_id) {
-                repo.removeRoomConnectionFromUser(
-                    socket.user_details.id,
-                    function () {
-                        _emitRoomDetails(room_id);
-                    }
-                );
-            }
+        /**
+         * DISCONNECT
+         */
+        socket.on(DISCONNECT, function () {
+            _infoLog('>> DISCONNECT: ');
+            _disconnectUser();
         });
 
         //
@@ -235,6 +229,19 @@ function application() {
         //         }, 5000);
         //     }
         // }
+
+        function _disconnectUser() {
+            _cancelVote();
+            let room_id = socket.user_details.room_id;
+            if (undefined !== room_id) {
+                repo.removeRoomConnectionFromUser(
+                    socket.user_details.id,
+                    function () {
+                        _emitRoomDetails(room_id);
+                    }
+                );
+            }
+        }
 
         function _emitUserDetails(user_id) {
             repo.getUserDetails(user_id, function (err, userDetails) {
@@ -314,16 +321,16 @@ function application() {
                         ensureCorrectAdmin(roomsDetails);
                     }
                 );
+
+                // _pickAdmin(roomsDetails);
+
+                // voting details if exists
+                emitVotingDetails(roomsDetails);
+
+                _emitRoomDetails(roomsDetails.id);
+
+                _emitUsersThatAlreadyHaveVoted(roomsDetails.id);
             }
-
-            // _pickAdmin(roomsDetails);
-
-            // voting details if exists
-            emitVotingDetails(roomsDetails);
-
-            _emitRoomDetails(roomsDetails.id);
-
-            _emitUsersThatAlreadyHaveVoted(roomsDetails.id);
         }
 
         ///////////////////////////

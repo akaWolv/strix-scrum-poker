@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router'
 import Paper from 'material-ui/Paper';
 import RaisedButton from 'material-ui/RaisedButton';
+import StateMachine from "../controllers/StateMachine";
 
 const styles = {
     paper_bottom_nav: {
@@ -15,6 +16,12 @@ const styles = {
 };
 
 class BackBox extends React.Component {
+    handle() {
+        StateMachine.changeState(
+            this.props.backLink,
+            true === this.props.doDisconnectRoom
+        );
+    }
     render() {
         return (
             <div className="row center-xs">
@@ -34,7 +41,8 @@ class BackBox extends React.Component {
 
 BackBox.propTypes = {
     backLink: React.PropTypes.string.isRequired,
-    backText: React.PropTypes.string.isRequired
+    backText: React.PropTypes.string.isRequired,
+    doDisconnectRoom: React.PropTypes.bool
 };
 
 export default BackBox;
