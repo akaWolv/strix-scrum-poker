@@ -326,14 +326,14 @@ function application() {
                 );
 
                 // _pickAdmin(roomsDetails);
-
-                // voting details if exists
-                emitVotingDetails(roomsDetails);
-
-                _emitRoomDetails(roomsDetails.id);
-
-                _emitUsersThatAlreadyHaveVoted(roomsDetails.id);
             }
+
+            // voting details if exists
+            emitVotingDetails(roomsDetails);
+
+            _emitRoomDetails(roomsDetails.id);
+
+            _emitUsersThatAlreadyHaveVoted(roomsDetails.id);
         }
 
         ///////////////////////////
@@ -485,7 +485,7 @@ function application() {
          * Emits voting details
          */
         function emitVotingDetails(roomsDetails) {
-            repo.getVotesInRoom(function (err, voteList) {
+            repo.getVotesInRoom(roomsDetails.id, function (err, voteList) {
                 if (voteList.length > 0) {
                     for (let k in voteList) {
                         // last user vote
@@ -494,7 +494,7 @@ function application() {
                         }
                     }
 
-                    emitter(socket, EMIT_USER_LAST_VOTE, lastUserVote);
+                    // emitter(socket, EMIT_USER_LAST_VOTE, lastUserVote);
 
                     if (roomsDetails.voting_status === STATUS_FINISHED) {
                         showVotes();

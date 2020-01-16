@@ -18,7 +18,7 @@ import {List, ListItem} from 'material-ui/List';
 import ActionDone from 'material-ui/svg-icons/action/done';
 import ActionHourGlass from 'material-ui/svg-icons/action/hourglass-empty';
 import ActionEventSeat from 'material-ui/svg-icons/action/event-seat';
-import {pink900, blue100, orange400, lime600, grey400} from 'material-ui/styles/colors';
+import {pink900, blue100, orange400, lime600, grey400, orange600, red600} from 'material-ui/styles/colors';
 
 import RaisedButton from 'material-ui/RaisedButton';
 import _ from 'underscore';
@@ -99,21 +99,12 @@ class Room extends React.Component {
     constructor(props, context) {
         super(props, context);
 
-        this.listeners = [
-            RoomStore.registerListener(RoomConstants.EVENT_ROOM_DETAILS_UPDATE, this.onChangeRoomDetails.bind(this)),
-            UserStore.registerListener(RoomConstants.EVENT_USER_DETAILS, this.onChangeRoomDetails.bind(this)),
-            // RoomStore.registerListener(RoomConstants.EVENT_ROOM_NOT_FOUND, this.onRoomNotFound.bind(this)),
-            VotingStore.registerListener(VotingConstants.EVENT_USERS_ALREADY_VOTED, this.onChangeUsersAlreadyVoted.bind(this)),
-            VotingStore.registerListener(VotingConstants.EVENT_USERS_VOTES, this.onChangeUsersVotes.bind(this))
-        ];
-
         if (undefined !== props.routeParams.room_id) {
             console.log('lets join ROOOOOOM');
             RoomActions.joinRoomById(props.routeParams.room_id);
         }
 
         let roomDetails = RoomStore.getRoomDetails();
-
         this.state = {
             room_id: roomDetails.id,
             room_name: roomDetails.name,
@@ -123,8 +114,18 @@ class Room extends React.Component {
             room_users: roomDetails.users,
             voting_status: roomDetails.voting_status,
             users_already_voted: VotingStore.getUsersAlreadyVoted(),
-            users_votes: VotingStore.getUsersVotes()
+            users_votes: VotingStore.getUsersVotes(),
+            highest_vote: VotingStore.getHighestVote(),
+            lowest_vote: VotingStore.getLowestVote(),
         };
+
+        this.listeners = [
+            RoomStore.registerListener(RoomConstants.EVENT_ROOM_DETAILS_UPDATE, this.onChangeRoomDetails.bind(this)),
+            UserStore.registerListener(RoomConstants.EVENT_USER_DETAILS, this.onChangeRoomDetails.bind(this)),
+            // RoomStore.registerListener(RoomConstants.EVENT_ROOM_NOT_FOUND, this.onRoomNotFound.bind(this)),
+            VotingStore.registerListener(VotingConstants.EVENT_USERS_ALREADY_VOTED, this.onChangeUsersAlreadyVoted.bind(this)),
+            VotingStore.registerListener(VotingConstants.EVENT_USERS_VOTES, this.onChangeUsersVotes.bind(this))
+        ];
     };
 
     componentWillUnmount() {
@@ -135,7 +136,11 @@ class Room extends React.Component {
     }
 
     onChangeUsersVotes() {
-        this.setState({users_votes: VotingStore.getUsersVotes()});
+        this.setState({
+            users_votes: VotingStore.getUsersVotes(),
+            highest_vote: VotingStore.getHighestVote(),
+            lowest_vote: VotingStore.getLowestVote(),
+        });
     }
 
     onChangeUsersAlreadyVoted() {
@@ -194,7 +199,7 @@ class Room extends React.Component {
             case VotingConstants.STATUS_IN_PROCESS:
                 let votes = Object.keys(this.state.users_already_voted || {}).length,
                     users = Object.keys(this.state.room_users).length;
-                return <p>Voting status (<span style={{color: votes != users ? orange400 : lime600}}>votes: <b>{votes}</b> / users: <b>{users}</b></span>)</p>;
+                return <p>Voting status (<span style={{color: votes !== users ? orange400 : lime600}}>votes: <b>{votes}</b> / users: <b>{users}</b></span>)</p>;
             case VotingConstants.STATUS_FINISHED:
                 return <p>Continue current voting or finalize it.</p>;
         }
@@ -289,17 +294,29 @@ class Room extends React.Component {
     }
 
     renderStatusIcon(usersId) {
-        if (VotingConstants.STATUS_IN_PROCESS === this.state.voting_status) {
-            if (undefined !== this.state.users_already_voted && -1 < this.state.users_already_voted.indexOf(usersId)) {
+        const {voting_status, users_already_voted, users_votes, highest_vote, lowest_vote} = this.state;
+
+        if (VotingConstants.STATUS_IN_PROCESS === voting_status) {
+            if (undefined !== users_already_voted && -1 < users_already_voted.indexOf(usersId)) {
                 return <ActionDone style={styles.users_list_status_icon} color={lime600} />;
             } else {
                 return <ActionHourGlass style={styles.users_list_status_icon} color={orange400} />;
             }
-        } else if (VotingConstants.STATUS_FINISHED === this.state.voting_status) {
-            if (undefined !== this.state.users_votes[usersId]) {
-                return <span style={styles.users_list_status_icon}><b>{this.state.users_votes[usersId]}</b></span>;
+        } else if (VotingConstants.STATUS_FINISHED === voting_status) {
+            if (undefined !== users_votes[usersId]) {
+                let color = 'inherit';
+                if (lowest_vote === highest_vote){
+                    color = lime600;
+                } else if (lowest_vote === users_votes[usersId]){
+                    color = orange600;
+                } else if (highest_vote === users_votes[usersId]) {
+                    color = red600;
+                }
+                return <span style={styles.users_list_status_icon}>
+                    <b style={{color: color}}>{users_votes[usersId]}</b>
+                </span>;
             } else {
-                return <span style={styles.users_list_status_icon}><i>no vote</i></span>;
+                return <span style={styles.users_list_status_icon}><i style={{opacity: '0.4'}}>no vote</i></span>;
             }
         }
 
@@ -309,7 +326,6 @@ class Room extends React.Component {
     render() {
         const {room_id, user_id} = this.state;
 
-        console.log('user_id: ' + user_id + ' room_id:' + room_id);
         if (undefined === user_id && undefined === room_id) {
             return <div><center><br /><br />Connecting to Room...</center></div>;
         } else if (undefined === user_id) {

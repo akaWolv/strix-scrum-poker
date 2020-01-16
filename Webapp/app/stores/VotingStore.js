@@ -1,5 +1,5 @@
 import AppDispatcher from '../dispatcher/AppDispatcher';
-import { EventEmitter } from 'events';
+import {EventEmitter} from 'events';
 import VotingConstants from '../constants/VotingConstants';
 import StoreMixin from '../mixins/StoreMixin';
 import Socket from '../handlers/SocketSession'
@@ -9,19 +9,20 @@ var _votingDetails = {
     id: undefined,
     //status: VotingConstants.STATUS_PENDING,
     sequence: [
-        { value: 1 },
-        { value: 2 },
-        { value: 3 },
-        { value: 5 },
-        { value: 8 },
-        { value: 13 },
-        { value: 21 }
+        {value: 1},
+        {value: 2},
+        {value: 3},
+        {value: 5},
+        {value: 8},
+        {value: 13},
+        {value: 21}
     ],
     vote: undefined,
     users_already_voted: [],
     users_votes: {},
     previous_users_votes: {}
 };
+_votingDetails['priorities'] = ['cafe', ..._votingDetails.sequence.map(i => i.value), 'big', '?'];
 
 var VotingStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
 
@@ -41,8 +42,25 @@ var VotingStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
         return _votingDetails.users_already_voted;
     },
 
+    getUsersVotesSorted: function () {
+        const {users_votes, priorities} = _votingDetails,
+            votes = Object.values(users_votes);
+        votes.sort((a, b) => priorities.indexOf(a) > priorities.indexOf(b) ? 1 : -1);
+        return votes;
+    },
+
     getUsersVotes: function () {
         return _votingDetails.users_votes;
+    },
+
+    getLowestVote: function () {
+        const sorted = this.getUsersVotesSorted();
+        return sorted.slice(0, 1)[0];
+    },
+
+    getHighestVote: function () {
+        const sorted = this.getUsersVotesSorted();
+        return sorted.slice(-1)[0];
     },
 
     getUserPreviousVote: function () {
@@ -129,8 +147,6 @@ Socket.session.on('keep_previous_users_votes', function () {
 Socket.session.on('forget_previous_users_votes', function () {
     _votingDetails.previous_users_votes = {};
 });
-
-
 
 
 export default VotingStore;
