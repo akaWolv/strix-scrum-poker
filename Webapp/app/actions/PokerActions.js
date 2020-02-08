@@ -1,13 +1,11 @@
-import AppDispatcher from '../dispatcher/AppDispatcher';
-import RoomConstants from '../constants/RoomConstants';
 import Socket from "../handlers/SocketSession";
+import PokerStore from "../stores/PokerStore";
 
-var RoomActions = {
+var PokerActions = {
     create: function(details) {
         const {name, password, sequence} = details;
         Socket.session.emit('create_room', {name, password, sequence});
     },
-
     joinRoomByNameAndPassword: function(name, password) {
         Socket.session.emit('join_room_by_name_and_pass', {name, password});
     },
@@ -16,9 +14,9 @@ var RoomActions = {
     },
     joinRoomById: function(id) {
         console.log('>>>>>>>>>>>>>>>');
-        Socket.session.emit('join_room', {id});
+        const user_id = PokerStore.getUserId();
+        Socket.session.emit('join_room', {id, user_id});
         console.log('+++++++++++++++++');
-        // AppDispatcher.handleViewAction(RoomConstants.ACTION_JOIN_ROOM_BY_ID, {id: id});
     },
 
     /**
@@ -44,16 +42,14 @@ var RoomActions = {
      * @param room_id
      */
     registerNewUser: function(name, room_id) {
-        AppDispatcher.handleViewAction('ACTION_REGISTER_NEW_USER', {name, room_id});
+        Socket.session.emit('register_new_user', {name, room_id});
     },
     /**
      * @param id
      */
     registerUserById: function(id) {
-        // AppDispatcher.handleViewAction(RoomConstants.ACTION_REGISTER_USER_BY_ID, {id});
-        // Socket.session.emit('register_user_by_id', {id: payload.details.id});
         Socket.session.emit('register_user_by_id', {id});
     },
 };
 
-export default RoomActions;
+export default PokerActions;

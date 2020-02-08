@@ -9,7 +9,8 @@ import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
 
 import {cyan500} from 'material-ui/styles/colors';
 
-import StateMachine from './controllers/StateMachine'
+import PokerStore from './stores/PokerStore';
+import StateMachine from './controllers/StateMachine';
 
 import '../node_modules/flexboxgrid/dist/flexboxgrid.min.css'
 
@@ -29,7 +30,7 @@ injectTapEventPlugin();
 
 ReactDOM.render(
     <MuiThemeProvider muiTheme={darkMuiTheme}>
-        <StateMachine />
+        <StateMachine pokerStore={PokerStore} />
     </MuiThemeProvider>,
     document.getElementById('app')
 );

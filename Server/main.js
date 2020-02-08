@@ -29,6 +29,7 @@ const EMIT_USER_NOT_FOUND = 'user_not_found';
 const EMIT_INTRODUCE_YOURSELF = 'hello';
 
 // ROOM
+const PREVIEW_ROOM = 'preview_room';
 const CREATE_ROOM = 'create_room';
 const EMIT_CREATE_ROOM_FAIL = 'create_room_fail';
 const EMIT_CREATE_ROOM_SUCCESS = 'create_room_success';
@@ -36,6 +37,7 @@ const EMIT_ROOM_DETAILS = 'room_details';
 const EMIT_ROOM_NOT_FOUND = 'room_not_found';
 const EMIT_JOIN_ROOM_SUCCESS = 'join_room_success';
 const EMIT_JOIN_ROOM_ANONYMOUS = 'join_room_anonymous';
+const EMIT_JOIN_ROOM_PREVIEW = 'join_room_preview';
 const JOIN_ROOM = 'join_room';
 const JOIN_ROOM_BY_NAME_AND_PASS = 'join_room_by_name_and_pass';
 const LEAVE_ROOM = 'leave_room';
@@ -104,7 +106,7 @@ function application() {
          * REGISTER_USER_BY_ID
          */
         socket.on(REGISTER_USER_BY_ID, function (msg) {
-            _infoLog('>> ' + REGISTER_USER_BY_ID, msg);
+            _infoLog(' [>>>>>] ' + REGISTER_USER_BY_ID, msg);
             if (undefined !== msg.id) {
                 _registerUser(msg.id)
             }
@@ -139,18 +141,20 @@ function application() {
          */
         socket.on(JOIN_ROOM_BY_NAME_AND_PASS, function (msg) {
             if (undefined !== msg.name && undefined !== msg.password) {
-                repo.getRoomByNameAndPass(
-                    msg.name,
-                    msg.password,
-                    function (err, roomDetails) {
-                        if (undefined !== roomDetails.id) {
-                            // join created room
-                            joinRoom(roomDetails);
-                            _infoLog('room found and joined');
-                        } else {
-                            emitter(socket, EMIT_ROOM_NOT_FOUND);
-                        }
-                    });
+                joinRoomByNameAndPass(msg.name, msg.password);
+            } else {
+                emitter(socket, EMIT_ROOM_NOT_FOUND);
+            }
+        });
+
+        /**
+         * PREVIEW_ROOM
+         */
+        socket.on(PREVIEW_ROOM, function (msg) {
+            if (undefined !== msg.id) {
+                joinRoomById(msg.id, true);
+            } else if (undefined !== msg.name && undefined !== msg.password) {
+                joinRoomByNameAndPass(msg.name, msg.password, true);
             } else {
                 emitter(socket, EMIT_ROOM_NOT_FOUND);
             }
@@ -160,7 +164,11 @@ function application() {
          * JOIN_ROOM
          */
         socket.on(JOIN_ROOM, function (msg) {
-            _infoLog('>> JOIN_ROOM: ' + msg.id);
+            _infoLog(' [>>>>>] JOIN_ROOM: ' + msg.id + ' | ' + msg.user_id);
+            if (undefined !== msg.user_id) {
+                // register user
+                _registerUser(msg.user_id);
+            }
             if (undefined !== msg.id) {
                 // find and join room
                 joinRoomById(msg.id);
@@ -171,7 +179,7 @@ function application() {
          * LEAVE_ROOM
          */
         socket.on(LEAVE_ROOM, function () {
-            _infoLog('>> LEAVE_ROOM: ');
+            _infoLog(' [>>>>>] LEAVE_ROOM: ');
             _disconnectUser();
         });
 
@@ -179,7 +187,7 @@ function application() {
          * DISCONNECT
          */
         socket.on(DISCONNECT, function () {
-            _infoLog('>> DISCONNECT: ');
+            _infoLog(' [>>>>>] DISCONNECT: ');
             _disconnectUser();
         });
 
@@ -289,12 +297,13 @@ function application() {
         /**
          * join room by id
          * @param roomId
+         * @param isPreview
          */
-        function joinRoomById(roomId) {
+        function joinRoomById(roomId, isPreview) {
             repo.getRoomDetails(roomId, function (err, roomDetails) {
                 if (undefined !== roomDetails.id) {
                     _infoLog('room found - joining');
-                    joinRoom(roomDetails);
+                    joinRoom(roomDetails, isPreview);
                 } else {
                     emitter(socket, EMIT_ROOM_NOT_FOUND);
                     socket.user_details.room_id = undefined;
@@ -303,17 +312,43 @@ function application() {
         }
 
         /**
+         * join room by id
+         * @param name
+         * @param password
+         * @param isPreview
+         */
+        function joinRoomByNameAndPass(name, password, isPreview) {
+            repo.getRoomByNameAndPass(
+                name,
+                password,
+                function (err, roomDetails) {
+                    if (undefined !== roomDetails.id) {
+                        // join created room
+                        joinRoom(roomDetails, isPreview);
+                        _infoLog('room found and joined');
+                    } else {
+                        emitter(socket, EMIT_ROOM_NOT_FOUND);
+                    }
+                });
+        }
+
+        /**
          * join room
          * @param roomsDetails
+         * @param isPreview
          */
-        function joinRoom(roomsDetails) {
+        function joinRoom(roomsDetails, isPreview) {
             // join room socket
             socket.join('room_' + roomsDetails.id);
 
             socket.user_details.room_id = roomsDetails.id;
-            if (socket.user_details.id === undefined) {
+            if (true === (undefined === isPreview ? false : isPreview)) {
+                socket.emit(EMIT_JOIN_ROOM_PREVIEW, roomsDetails);
+                _infoLog('EMIT_JOIN_ROOM_PREVIEW');
+            } else if (socket.user_details.id === undefined) {
                 // roomsDetails.users = [];
                 socket.emit(EMIT_JOIN_ROOM_ANONYMOUS, roomsDetails);
+                _infoLog('EMIT_JOIN_ROOM_ANONYMOUS');
             } else {
                 // save user
                 repo.saveUser(
@@ -575,7 +610,7 @@ function application() {
             console.log(logDate + '|' + log_name + '|' + JSON.stringify(info_log));
         }
 
-        _infoLog('>> CONNECTION');
+        _infoLog(' [>>>>>] CONNECTION');
     });
 
     // ********

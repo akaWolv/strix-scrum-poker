@@ -5,6 +5,9 @@ export default {
     CONNECTING: '/connecting',
     CONNECTION_PROBLEM: '/connection_problem',
 
+    ROOM_PREVIEW_JOIN: '/join_preview_room',
+    ROOM_PREVIEW_ID: '/preview_room/:room_id',
+
     ROOM: '/room/:room_id',
     ROOM_CREATE: '/create_room',
     ROOM_JOIN_ALTERNATIVE: '/room',

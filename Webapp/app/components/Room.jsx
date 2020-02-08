@@ -1,15 +1,14 @@
 import React from 'react';
-import RoomStore from '../stores/RoomStore';
 import Paper from 'material-ui/Paper';
 
 import RoomVotingPanel from '../components/RoomVotingPanel';
 
 import RoomConstants from '../constants/RoomConstants';
-import RoomActions from '../actions/RoomActions';
+import PokerActions from '../actions/PokerActions';
 import VotingConstants from '../constants/VotingConstants';
 import StatesConstants from '../constants/StatesConstants';
 import StateMachine from '../controllers/StateMachine';
-import UserStore from '../stores/UserStore';
+import PokerStore from '../stores/PokerStore';
 import VotingStore from '../stores/VotingStore';
 import VotingAction from '../actions/VotingActions';
 
@@ -99,12 +98,12 @@ class Room extends React.Component {
     constructor(props, context) {
         super(props, context);
 
-        if (undefined !== props.routeParams.room_id) {
+        if (undefined !== props.routeParams.room_id && undefined === PokerStore.getRoomId()) {
             console.log('lets join ROOOOOOM');
-            RoomActions.joinRoomById(props.routeParams.room_id);
+            PokerActions.joinRoomById(props.routeParams.room_id);
         }
 
-        let roomDetails = RoomStore.getRoomDetails();
+        let roomDetails = PokerStore.getRoomDetails();
         this.state = {
             room_id: roomDetails.id,
             room_name: roomDetails.name,
@@ -120,16 +119,15 @@ class Room extends React.Component {
         };
 
         this.listeners = [
-            RoomStore.registerListener(RoomConstants.EVENT_ROOM_DETAILS_UPDATE, this.onChangeRoomDetails.bind(this)),
-            UserStore.registerListener(RoomConstants.EVENT_USER_DETAILS, this.onChangeRoomDetails.bind(this)),
-            // RoomStore.registerListener(RoomConstants.EVENT_ROOM_NOT_FOUND, this.onRoomNotFound.bind(this)),
+            PokerStore.registerListener(RoomConstants.EVENT_ROOM_DETAILS_UPDATE, this.onChangeRoomDetails.bind(this)),
+            PokerStore.registerListener(RoomConstants.EVENT_USER_DETAILS, this.onChangeUserDetails.bind(this)),
             VotingStore.registerListener(VotingConstants.EVENT_USERS_ALREADY_VOTED, this.onChangeUsersAlreadyVoted.bind(this)),
             VotingStore.registerListener(VotingConstants.EVENT_USERS_VOTES, this.onChangeUsersVotes.bind(this))
         ];
     };
 
     componentWillUnmount() {
-        RoomActions.leaveRoom(this.state.room_id);
+        PokerActions.leaveRoom(this.state.room_id);
         for (let k in this.listeners) {
             this.listeners[k].deregister();
         }
@@ -151,9 +149,16 @@ class Room extends React.Component {
         StateMachine.changeState(StatesConstants.WELCOME);
     }
 
+    onChangeUserDetails() {
+        this.setState({
+            user_id: PokerStore.getUserId(),
+            user_name: PokerStore.getUserName()
+        });
+    }
+
     onChangeRoomDetails() {
         console.log('onChangeRoomDetails');
-        let roomDetails = RoomStore.getRoomDetails();
+        let roomDetails = PokerStore.getRoomDetails();
 
         this.detectAdminChange(this.state.room_admin, roomDetails.admin);
 
@@ -165,13 +170,13 @@ class Room extends React.Component {
             room_password: roomDetails.password,
             room_users: roomDetails.users,
             voting_status: roomDetails.voting_status,
-            user_id: UserStore.getUserId(),
-            user_name: UserStore.getUserName(),
+            user_id: PokerStore.getUserId(),
+            user_name: PokerStore.getUserName(),
         });
     }
 
     detectAdminChange(oldValue, newValue) {
-        if (undefined !== oldValue && oldValue !== newValue && newValue === UserStore.getUserId()) {
+        if (undefined !== oldValue && oldValue !== newValue && newValue === PokerStore.getUserId()) {
             alert('You are admin now!');
         }
     }
@@ -206,7 +211,7 @@ class Room extends React.Component {
     }
 
     renderAdminPanel() {
-        if (this.state.room_admin === UserStore.getUserId()) {
+        if (this.state.room_admin === PokerStore.getUserId()) {
             return (
                 <Paper style={styles.paper_info} zDepth={1}>
                     <div style={styles.admin_box}>
@@ -224,7 +229,10 @@ class Room extends React.Component {
     }
 
     renderAdminPanel2() {
-        if (this.state.room_admin === UserStore.getUserId() && VotingConstants.STATUS_IN_PROCESS === this.state.voting_status) {
+        if (
+            this.state.room_admin === PokerStore.getUserId()
+            && VotingConstants.STATUS_IN_PROCESS === this.state.voting_status
+        ) {
             return (
                 <Paper style={styles.paper_info} zDepth={1}>
                     <div style={styles.admin_box}>

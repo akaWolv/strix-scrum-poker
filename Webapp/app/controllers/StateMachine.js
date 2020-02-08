@@ -13,6 +13,9 @@ import Connecting from '../components/Connecting.jsx'
 import ConnectionProblem from '../components/ConnectionProblem.jsx'
 import RoomCreate from '../components/RoomCreate.jsx'
 
+import PreviewRoomJoin from '../components/PreviewRoomJoin.jsx'
+import PreviewRoomSpectate from '../components/PreviewRoomSpectate.jsx'
+
 
 const _pathList = [];
 var _pathName = undefined;
@@ -37,18 +40,6 @@ class StateMachine extends React.Component {
         if (Socket.session.connected === false) {
             Socket.session.on('connect', function() {
                 this.setState({socket_connected: true});
-                // if (
-                //     undefined !== _pathList[1]
-                //     && StatesConstants.CONNECTION_PROBLEM !== _pathList[1]
-                //     && StatesConstants.CONNECTING !== _pathList[1]
-                // ) {
-                //     // go back to previous page
-                //     StateMachine.changeState(_pathList[1]);
-                // } else {
-                //     // there is no previous pages
-                //     // redirect to main page
-                //     StateMachine.changeState(StatesConstants.WELCOME);
-                // }
             }.bind(this));
         }
 
@@ -62,10 +53,6 @@ class StateMachine extends React.Component {
         console.log('--------------------------');
         console.log(StateMachine.getCurrentPath() + " <- old vs. new -> " + state);
         console.log('--------------------------');
-
-        // if (true === doDisconnectRoom) {
-        //     Socket.session.emit('leave_room');
-        // }
 
         if (StateMachine.getCurrentPath() !== state) {
             browserHistory.push(state);
@@ -93,8 +80,8 @@ class StateMachine extends React.Component {
 
                 <Route path={StatesConstants.USER_DETAILS} component={UserDetails}/>
 
-                {/*<Route path={StatesConstants.ROOM_JOIN} component={RoomJoin}/>*/}
-                {/*<Route path={StatesConstants.ROOM_DISPLAY} component={RoomDisplay}/>*/}
+                <Route path={StatesConstants.ROOM_PREVIEW_JOIN} component={PreviewRoomJoin}/>
+                <Route path={StatesConstants.ROOM_PREVIEW_ID} component={PreviewRoomSpectate}/>
             </Router>
         ) : <Connecting />;
     }

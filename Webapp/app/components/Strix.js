@@ -25,7 +25,7 @@ const styles = {
     }
 };
 
-class Basior extends React.Component {
+class Strix extends React.Component {
     handleOnClick() {
         window.open("http://sarcastrix.com");
     }
@@ -38,6 +38,6 @@ class Basior extends React.Component {
     }
 }
 
-export default Basior;
+export default Strix;
 
 

@@ -1,22 +1,15 @@
-    'use strict';
+'use strict';
 
 import React from 'react';
-import { Link } from 'react-router'
 
-import {CardHeader, CardText} from 'material-ui/Card';
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-import Cookies from 'cookies-js';
 
-import UserStore from '../stores/UserStore.js';
-import RoomActions from '../actions/RoomActions';
+import PokerActions from '../actions/PokerActions';
 import StatesConstants from '../constants/StatesConstants';
-import StateMachine from '../controllers/StateMachine';
 import BackBox from '../components/BackBox.jsx';
-import RoomStore from "../stores/RoomStore";
+import PokerStore from "../stores/PokerStore";
 
 const styles = {
     paper: {
@@ -59,13 +52,6 @@ class UserDetails extends React.Component {
     constructor(props) {
         super(props);
 
-        if (undefined === props.room_id) {
-            alert('No room?');
-            // StateMachine.changeState(StatesConstants.ROOM_JOIN);
-        } else {
-            // alert(props.room_id);
-        }
-
         this.state = {
             user_name:  '',
             user_name_error: false
@@ -97,16 +83,10 @@ class UserDetails extends React.Component {
         if (false !== stateToSet.user_name_error) {
             this.setState(stateToSet);
         } else {
-            // if (undefined === this.listeners.user_registered) {
-            //     this.listeners.user_registered = UserStore.registerListener(UserConstants.EVENT_USER_REGISTERED, this.onUserRegistered.bind(this));
-            // }
-            RoomActions.registerNewUser(this.state.user_name, RoomStore.getRoomId());
+            PokerActions.registerNewUser(this.state.user_name, PokerStore.getRoomId());
         }
     }
 
-    // onUserRegistered() {
-    //     StateMachine.changeState(StatesConstants.ROOM);
-    // }
     render() {
         return (
             <div>
@@ -144,7 +124,6 @@ class UserDetails extends React.Component {
 
 UserDetails.contextTypes = {
     room_id: function() { return React.PropTypes.number.isRequired; }
-    // router: function() { return React.PropTypes.func.isRequired; }
 };
 
 export default UserDetails;

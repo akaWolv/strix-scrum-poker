@@ -9,7 +9,7 @@ import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
-import RoomStore from '../stores/RoomStore';
+import PokerStore from '../stores/PokerStore';
 // import UserStore from '../stores/UserStore.js';
 
 import RoomActions from '../actions/RoomActions';
@@ -70,12 +70,12 @@ class RoomCreate extends React.Component {
         };
 
         this.listeners = [
-            RoomStore.registerListener(RoomConstants.EVENT_ROOM_DETAILS_UPDATE, RoomCreate.onJoinedRoom)
+            PokerStore.registerListener(RoomConstants.EVENT_ROOM_DETAILS_UPDATE, RoomCreate.onJoinedRoom)
         ];
     }
 
     static onJoinedRoom() {
-        StateMachine.changeState(StatesConstants.ROOM.replace(':room_id', RoomStore.getRoomId()));
+        StateMachine.changeState(StatesConstants.ROOM.replace(':room_id', PokerStore.getRoomId()));
     }
 
     componentWillUnmount() {
@@ -117,7 +117,7 @@ class RoomCreate extends React.Component {
             this.setState(stateToSet);
         } else {
             // if (undefined === this.listeners.join_room) {
-            //     this.listeners.join_room = RoomStore.registerListener(RoomConstants.EVENT_JOINED_ROOM, this.onJoinedRoom.bind(this));
+            //     this.listeners.join_room = PokerStore.registerListener(RoomConstants.EVENT_JOINED_ROOM, this.onJoinedRoom.bind(this));
             // }
 
             RoomActions.create({

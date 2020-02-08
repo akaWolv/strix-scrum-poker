@@ -1,7 +1,6 @@
 'use strict';
 
 import React from 'react';
-
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
 import TextField from 'material-ui/TextField';
@@ -10,18 +9,25 @@ import PokerActions from '../actions/PokerActions';
 import StatesConstants from '../constants/StatesConstants';
 
 import BackBox from '../components/BackBox.jsx';
+import RoomConstants from "../constants/RoomConstants";
+import PokerStore from "../stores/PokerStore";
 
 const styles = {
     paper: {
-        padding: 20,
         height: 350,
-        marginBottom: 20
+        padding: 20,
+        marginBottom: 10
+    },
+    paper_footer: {
+        marginTop: 10,
+        padding: 20,
+        textAlign: 'left'
     },
     button: {
         width: '100%'
     },
     form_box: {
-        height: '75%',
+        height: '80%',
         width: '100%',
         textAlign: 'left'
     },
@@ -31,6 +37,12 @@ const styles = {
     select_input: {
         width: '100%',
         marginTop: 20
+    },
+    hint_under_select: {
+        color: '#bbb',
+        textAlign: 'center',
+        fontSize: '0.8em',
+        marginTop: 5
     }
 };
 
@@ -39,20 +51,33 @@ const texts = {
     input_label_room_password: 'Room password',
     input_label_room_admin_password: 'Admin password',
     save_button: 'Continue',
-    box_title: 'Join room',
+    box_title: 'Preview room',
     room_name_invalid: 'Invalid name...',
     room_password_invalid: '...or password'
 };
 
-class RoomJoin extends React.Component {
+class PreviewRoomJoin extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             room_name: '',
             room_password: '',
             room_name_valid: true,
-            room_password_valid: true
+            room_password_valid: true,
+            room_id: undefined
         };
+
+        this.listeners = [
+            PokerStore.registerListener(RoomConstants.EVENT_ROOM_NOT_FOUND, this.onRoomNotFound.bind(this))
+        ];
+    }
+
+    componentWillUnmount() {
+        for (let k in this.listeners) {
+            if (undefined !== this.listeners[k].deregister) {
+                this.listeners[k].deregister()
+            }
+        }
     }
 
     onRoomNotFound() {
@@ -68,7 +93,7 @@ class RoomJoin extends React.Component {
     };
 
     handleJoin() {
-        PokerActions.joinRoomByNameAndPassword(this.state.room_name, this.state.room_password);
+        PokerActions.previewRoomByNameAndPassword(this.state.room_name, this.state.room_password);
     }
 
     render() {
@@ -98,6 +123,7 @@ class RoomJoin extends React.Component {
                                             value={this.state.room_password}
                                             onChange={this.collectInputValue.bind(this)}
                                             errorText={this.state.room_name_valid ? '' : texts.room_password_invalid} />
+                                        <p style={styles.hint_under_select}>{this.state.sequence_hint}</p>
                                     </div>
                                     <RaisedButton
                                         label={texts.save_button}
@@ -109,16 +135,10 @@ class RoomJoin extends React.Component {
                         </div>
                     </div>
                 </div>
-                <BackBox backLink={StatesConstants.WELCOME} backText="Back to dashboard"/>
+                <BackBox backLink={StatesConstants.WELCOME} backText="Back to main page"/>
             </div>
         );
     }
 }
 
-RoomJoin.contextTypes = {
-    router: function () {
-        return React.PropTypes.func.isRequired;
-    }
-};
-
-export default RoomJoin;
+export default PreviewRoomJoin;

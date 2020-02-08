@@ -6,9 +6,8 @@ import {Link} from 'react-router'
 import RaisedButton from 'material-ui/RaisedButton';
 import Paper from 'material-ui/Paper';
 import Footer from '../components/Footer';
-import UserStore from '../stores/UserStore';
+import PokerStore from '../stores/PokerStore';
 import StatesConstants from "../constants/StatesConstants";
-import Socket from '../handlers/SocketSession'
 
 const styles = {
     paper_welcome: {
@@ -29,7 +28,7 @@ const styles = {
 const texts = {
     button_new_room: 'Create room',
     button_join_room: 'Join room',
-    button_display_room: 'Display room',
+    button_room_preview: 'Preview room (TV)',
     button_existing_user: 'Use existing details',
     button_continue_as_part_1: 'Continue as ',
     button_spectate: 'Spectate',
@@ -47,10 +46,10 @@ class Welcome extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user_name: ''//UserStore.getUserName()
+            user_name: PokerStore.getUserName()
         };
 
-        this.listeners = {};
+        this.listeners = [];
     }
 
     componentWillUnmount() {
@@ -62,10 +61,11 @@ class Welcome extends React.Component {
     }
 
     onChangeUserDetails() {
-        this.setState({user_name: UserStore.getUserName()});
+        this.setState({user_name: PokerStore.getUserName()});
     }
 
     render() {
+        const {user_name} = this.state;
         return (
             <div>
                 <div className="row center-xs">
@@ -76,6 +76,12 @@ class Welcome extends React.Component {
                                     <h4>{texts.welcome_header}</h4>
                                 </div>
                             </Paper>
+                            {
+                                undefined !== user_name ?
+                                <Paper style={styles.paper_welcome} zDepth={1}>
+                                    <div>Hello again <b>{this.state.user_name}</b></div>
+                                </Paper> : null
+                            }
                         </div>
                     </div>
                 </div>
@@ -96,9 +102,9 @@ class Welcome extends React.Component {
                                             primary={true}
                                             style={styles.button_welcome}/>
                                     </Link>
-                                    <Link to={StatesConstants.ROOM_DISPLAY}>
+                                    <Link to={StatesConstants.ROOM_PREVIEW_JOIN}>
                                         <RaisedButton
-                                            label={texts.button_display_room}
+                                            label={texts.button_room_preview}
                                             primary={true}
                                             style={styles.button_welcome}/>
                                     </Link>

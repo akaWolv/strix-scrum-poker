@@ -3,9 +3,9 @@ import {EventEmitter} from 'events';
 import VotingConstants from '../constants/VotingConstants';
 import StoreMixin from '../mixins/StoreMixin';
 import Socket from '../handlers/SocketSession'
-import UserStore from "./UserStore";
+import PokerStore from "./PokerStore";
 
-var _votingDetails = {
+const _votingDetails = {
     id: undefined,
     //status: VotingConstants.STATUS_PENDING,
     sequence: [
@@ -24,7 +24,7 @@ var _votingDetails = {
 };
 _votingDetails['priorities'] = ['cafe', ..._votingDetails.sequence.map(i => i.value), 'big', '?'];
 
-var VotingStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
+const VotingStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
 
     getVotingDetails: function () {
         return _votingDetails;
@@ -64,8 +64,8 @@ var VotingStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
     },
 
     getUserPreviousVote: function () {
-        if (undefined !== _votingDetails.previous_users_votes[UserStore.getUserId()]) {
-            return _votingDetails.previous_users_votes[UserStore.getUserId()];
+        if (undefined !== _votingDetails.previous_users_votes[PokerStore.getUserId()]) {
+            return _votingDetails.previous_users_votes[PokerStore.getUserId()];
         }
         return undefined;
     },
@@ -103,27 +103,6 @@ var VotingStore = Object.assign({}, StoreMixin, EventEmitter.prototype, {
         return true;
     })
 });
-
-//SocketSession.on('voting_status_changed', function (msg) {
-//    console.log('voting_status_changed', msg);
-//
-//    switch (msg) {
-//        case 'voting started':
-//            _votingDetails.status = VotingConstants.STATUS_IN_PROCESS;
-//            break;
-//        case 'voting finished':
-//            _votingDetails.status = VotingConstants.STATUS_FINISHED;
-//            break;
-//        case 'voting continued':
-//            _votingDetails.status = VotingConstants.STATUS_IN_PROCESS;
-//            break;
-//        default:
-//            _votingDetails.status = VotingConstants.STATUS_PENDING;
-//            break;
-//    }
-//
-//    VotingStore.emit(VotingConstants.EVENT_VOTING_STATUS_CHANGED);
-//});
 
 Socket.session.on('users_already_voted', function (msg) {
     _votingDetails.users_already_voted = msg;
