@@ -339,7 +339,8 @@ class Room extends React.Component {
         } else if (undefined === user_id) {
             return <UserDetails room_id={room_id} />;
         } else {
-            return (<div>
+            return (
+                <div>
                     <div className="row center-xs">
                         <div className="col-xs-12  col-sm-6  col-md-4">
                             <div className="box">
