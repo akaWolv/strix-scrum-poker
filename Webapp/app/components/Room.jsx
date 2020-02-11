@@ -1,28 +1,34 @@
 import React from 'react';
-import Paper from 'material-ui/Paper';
+import Paper from '@material-ui/core/Paper';
 
-import RoomVotingPanel from '../components/RoomVotingPanel';
 
 import RoomConstants from '../constants/RoomConstants';
 import PokerActions from '../actions/PokerActions';
 import VotingConstants from '../constants/VotingConstants';
 import StatesConstants from '../constants/StatesConstants';
-import StateMachine from '../controllers/StateMachine';
 import PokerStore from '../stores/PokerStore';
 import VotingStore from '../stores/VotingStore';
 import VotingAction from '../actions/VotingActions';
+import Fab from '@material-ui/core/Fab';
 
-import Avatar from 'material-ui/Avatar';
-import {List, ListItem} from 'material-ui/List';
-import ActionDone from 'material-ui/svg-icons/action/done';
-import ActionHourGlass from 'material-ui/svg-icons/action/hourglass-empty';
-import ActionEventSeat from 'material-ui/svg-icons/action/event-seat';
-import {pink900, blue100, orange400, lime600, grey400, orange600, red600} from 'material-ui/styles/colors';
+import Avatar from '@material-ui/core/Avatar';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import ActionDone from '@material-ui/icons/Done';
+import ActionHourGlass from '@material-ui/icons/HourglassEmpty';
+import ActionEventSeat from '@material-ui/icons/EventSeat';
+import {pink, blue, orange, lime, grey, red, lightBlue} from '@material-ui/core/colors';
 
-import RaisedButton from 'material-ui/RaisedButton';
+import Button from '@material-ui/core/Button';
 import _ from 'underscore';
-import Footer from '../components/Footer';
+
+import RoomInfoBox from '../components/RoomInfoBox.jsx';
+import RoomVotingPanel from './RoomVotingPanel';
 import BackBox from '../components/BackBox.jsx';
+import Footer from './Footer';
 import UserDetails from "./UserDetails.jsx";
 
 const styles = {
@@ -44,7 +50,7 @@ const styles = {
         marginBottom: 10
     },
     paper_users_list_box: {
-        paddingTop: 20,
+        paddingTop: 5,
         paddingLeft: 20,
         paddingRight: 20,
         paddingBottom: 0,
@@ -54,17 +60,30 @@ const styles = {
 
     users_list_status_icon: {
         float: 'right',
-        fontSize: '1.5em'
+        fontSize: '1.5em',
+        color: blue[100]
+    },
+
+    users_list_status_icon_ok: {
+        float: 'right',
+        fontSize: '1.5em',
+        color: lime[600],
+    },
+
+    users_list_status_icon_bad: {
+        float: 'right',
+        fontSize: '1.5em',
+        color: orange['400']
     },
 
     no_voting_header: {
         textAlign: 'center',
-        color: grey400
+        color: grey[400]
     },
 
     admin_box: {
         padding: 20,
-        backgroundColor: pink900,
+        backgroundColor: pink[900],
         marginBottom: 10
     },
     admin_panel_header: {
@@ -86,7 +105,7 @@ const texts = {
     start_new_voting: 'Start new voting',
     stop_voting: 'End voting',
     finish_voting: 'Finish and show values',
-    continue_voting: 'Continue voting',
+    continue_voting: 'Resume',
     admin_panel_header: 'Admin control'
 };
 
@@ -98,9 +117,11 @@ class Room extends React.Component {
     constructor(props, context) {
         super(props, context);
 
-        if (undefined !== props.routeParams.room_id && undefined === PokerStore.getRoomId()) {
+        const {room_id} = this.props.match.params;
+
+        if (undefined !== room_id && undefined === PokerStore.getRoomId()) {
             console.log('lets join ROOOOOOM');
-            PokerActions.joinRoomById(props.routeParams.room_id);
+            PokerActions.joinRoomById(room_id);
         }
 
         let roomDetails = PokerStore.getRoomDetails();
@@ -143,10 +164,6 @@ class Room extends React.Component {
 
     onChangeUsersAlreadyVoted() {
         this.setState({users_already_voted: VotingStore.getUsersAlreadyVoted()});
-    }
-
-    onRoomNotFound() {
-        StateMachine.changeState(StatesConstants.WELCOME);
     }
 
     onChangeUserDetails() {
@@ -204,7 +221,7 @@ class Room extends React.Component {
             case VotingConstants.STATUS_IN_PROCESS:
                 let votes = Object.keys(this.state.users_already_voted || {}).length,
                     users = Object.keys(this.state.room_users).length;
-                return <p>Voting status (<span style={{color: votes !== users ? orange400 : lime600}}>votes: <b>{votes}</b> / users: <b>{users}</b></span>)</p>;
+                return <p>Voting status (<span style={{color: votes !== users ? orange['400'] : lime[600]}}>votes: <b>{votes}</b> / users: <b>{users}</b></span>)</p>;
             case VotingConstants.STATUS_FINISHED:
                 return <p>Continue current voting or finalize it.</p>;
         }
@@ -213,7 +230,7 @@ class Room extends React.Component {
     renderAdminPanel() {
         if (this.state.room_admin === PokerStore.getUserId()) {
             return (
-                <Paper style={styles.paper_info} zDepth={1}>
+                <Paper style={styles.paper_info} elevation={1}>
                     <div style={styles.admin_box}>
                         <h4 style={styles.admin_panel_header}>
                             {texts.admin_panel_header}
@@ -234,15 +251,17 @@ class Room extends React.Component {
             && VotingConstants.STATUS_IN_PROCESS === this.state.voting_status
         ) {
             return (
-                <Paper style={styles.paper_info} zDepth={1}>
+                <Paper style={styles.paper_info} elevation={1}>
                     <div style={styles.admin_box}>
                         <div className="row center-xs">
                             <div className="col-xs-12">
-                                <RaisedButton
-                                    label={texts.finish_voting}
-                                    primary={true}
+                                <Button
+                                    color="primary"
+                                    variant="contained"
                                     style={styles.admin_panel_button}
-                                    onClick={this.handleFinishVoting.bind(this)}/>
+                                    onClick={this.handleFinishVoting.bind(this)}>
+                                    {texts.finish_voting}
+                                </Button>
                             </div>
                         </div>
                     </div>
@@ -259,11 +278,13 @@ class Room extends React.Component {
                 return (
                     <div className="row center-xs">
                         <div className="col-xs-12">
-                            <RaisedButton
-                                label={texts.start_new_voting}
-                                primary={true}
+                            <Button
+                                color="primary"
+                                variant="contained"
                                 style={styles.admin_panel_button}
-                                onClick={this.handleStartNewVotingButton.bind(this)}/>
+                                onClick={this.handleStartNewVotingButton.bind(this)}>
+                                {texts.start_new_voting}
+                            </Button>
                         </div>
                     </div>
                 );
@@ -271,11 +292,13 @@ class Room extends React.Component {
                 return (
                     <div className="row center-xs">
                         <div className="col-xs-12">
-                            <RaisedButton
-                                label={texts.finish_voting}
-                                primary={true}
+                            <Button
+                                color="secondary"
+                                variant="outlined"
                                 style={styles.admin_panel_button}
-                                onClick={this.handleFinishVoting.bind(this)}/>
+                                onClick={this.handleFinishVoting.bind(this)}>
+                                {texts.finish_voting}
+                            </Button>
                         </div>
                     </div>
                 );
@@ -283,18 +306,22 @@ class Room extends React.Component {
                 return (
                     <div className="row center-xs">
                         <div className="col-xs-6">
-                            <RaisedButton
-                                label={texts.continue_voting}
-                                primary={true}
+                            <Button
+                                color="primary"
+                                variant="contained"
                                 style={styles.admin_panel_button}
-                                onClick={this.handleContinueVoting.bind(this)}/>
+                                onClick={this.handleContinueVoting.bind(this)}>
+                                {texts.continue_voting}
+                            </Button>
                         </div>
                         <div className="col-xs-6">
-                            <RaisedButton
-                                label={texts.stop_voting}
-                                primary={true}
+                            <Button
+                                color="primary"
+                                variant="contained"
                                 style={styles.admin_panel_button}
-                                onClick={this.handleStopVoting.bind(this)}/>
+                                onClick={this.handleStopVoting.bind(this)}>
+                                {texts.stop_voting}
+                            </Button>
                         </div>
                     </div>
                 );
@@ -304,68 +331,67 @@ class Room extends React.Component {
     renderStatusIcon(usersId) {
         const {voting_status, users_already_voted, users_votes, highest_vote, lowest_vote} = this.state;
 
+        let icon_to_return,
+            color = grey[700];
+
         if (VotingConstants.STATUS_IN_PROCESS === voting_status) {
             if (undefined !== users_already_voted && -1 < users_already_voted.indexOf(usersId)) {
-                return <ActionDone style={styles.users_list_status_icon} color={lime600} />;
+                icon_to_return = <ActionDone style={styles.users_list_status_icon} />;
             } else {
-                return <ActionHourGlass style={styles.users_list_status_icon} color={orange400} />;
+                icon_to_return = <ActionHourGlass style={styles.users_list_status_icon} />;
             }
         } else if (VotingConstants.STATUS_FINISHED === voting_status) {
             if (undefined !== users_votes[usersId]) {
-                let color = 'inherit';
                 if (lowest_vote === highest_vote){
-                    color = lime600;
+                    color = lightBlue[700];
                 } else if (lowest_vote === users_votes[usersId]){
-                    color = orange600;
+                    color = lime[800];
                 } else if (highest_vote === users_votes[usersId]) {
-                    color = red600;
+                    color = red[700];
                 }
-                return <span style={styles.users_list_status_icon}>
-                    <b style={{color: color}}>{users_votes[usersId]}</b>
+                icon_to_return = <span style={styles.users_list_status_icon}>
+                    <b style={{color: grey[100]}}>{users_votes[usersId]}</b>
                 </span>;
             } else {
-                return <span style={styles.users_list_status_icon}><i style={{opacity: '0.4'}}>no vote</i></span>;
+                icon_to_return = <span style={styles.users_list_status_icon}><i style={{opacity: '0.4'}}>...</i></span>;
             }
         }
 
-        return <ActionEventSeat style={styles.users_list_status_icon} color={blue100} />;
+        if (undefined === icon_to_return) {
+            icon_to_return = <ActionEventSeat style={styles.users_list_status_icon} />
+        }
+
+        return <ListItemSecondaryAction>
+            <Fab disabled={true}
+                 size='medium'
+                 style={{backgroundColor: color}}>
+                {icon_to_return}
+            </Fab>
+        </ListItemSecondaryAction>;
+    }
+
+    renderRandomAvatar() {
+
     }
 
     render() {
-        const {room_id, user_id} = this.state;
+        const {
+            room_id,
+            user_id,
+            room_name,
+            room_password,
+            room_users,
+            voting_status,
+            room_admin
+        } = this.state;
 
-        if (undefined === user_id && undefined === room_id) {
+        if (undefined === room_id) {
             return <div><center><br /><br />Connecting to Room...</center></div>;
         } else if (undefined === user_id) {
-            return <UserDetails room_id={room_id} />;
+            return <UserDetails roomId={room_id} />;
         } else {
             return (
                 <div>
-                    <div className="row center-xs">
-                        <div className="col-xs-12  col-sm-6  col-md-4">
-                            <div className="box">
-                                <Paper style={styles.paper_info} zDepth={1}>
-                                    <div style={styles.text_box_info}>
-                                        <h4>{texts.header}{this.state.room_name}</h4>
-                                        <div style={styles.text_box_info_details}>
-                                            <p>
-                                                {texts.password}
-                                                <b>{this.state.room_password}</b>
-                                            </p>
-                                            <p>
-                                                {texts.connected_info}
-                                                <b>{Object.keys(this.state.room_users).length}</b>
-                                            </p>
-                                            <p>
-                                                {texts.voting_status}
-                                                <b>{texts.voting_status_text[this.state.voting_status]}</b>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </Paper>
-                            </div>
-                        </div>
-                    </div>
                     <div className="row center-xs">
                         <div className="col-xs-12  col-sm-6  col-md-4">
                             <div className="box">
@@ -377,29 +403,31 @@ class Room extends React.Component {
                         <div className="col-xs-12  col-sm-6  col-md-4">
                             <div className="box">
                                 <RoomVotingPanel
-                                    voting_status={this.state.voting_status}/>
+                                    voting_status={voting_status}/>
                             </div>
                         </div>
                     </div>
                     <div className="row center-xs">
                         <div className="col-xs-12  col-sm-6  col-md-4">
                             <div className="box">
-                                <Paper style={styles.paper_users_list} zDepth={1}>
+                                <Paper style={styles.paper_users_list} elevation={1}>
                                     <div style={styles.paper_users_list_box}>
                                         <h4>{texts.user_status}</h4>
                                     </div>
                                     <List>
                                         {_.toArray(this.state.room_users).map(function (element) {
                                             return (
-                                                <ListItem
-                                                    key={element.id}
-                                                    primaryText={undefined === element.name ? '...' : element.name}
-                                                    leftAvatar={<Avatar src="" />}>
+                                                <ListItem key={element.id}>
+                                                    <ListItemIcon>
+                                                        {<Avatar src="" />}
+                                                    </ListItemIcon>
+                                                    <ListItemText primary={undefined === element.name ? '...' : element.name} />
                                                     { this.renderStatusIcon(element.id) }
                                                 </ListItem>
                                             )
                                         }.bind(this))}
                                     </List>
+                                    <br />
                                 </Paper>
                             </div>
                         </div>
@@ -411,6 +439,42 @@ class Room extends React.Component {
                             </div>
                         </div>
                     </div>
+                    <div className="row center-xs">
+                        <div className="col-xs-12  col-sm-6  col-md-4">
+                            <RoomInfoBox
+                                room_name={room_name}
+                                room_users={room_users}
+                                room_admin={room_admin}
+                                room_password={room_password}
+                                voting_status={voting_status}
+                            />
+                        </div>
+                    </div>
+                    {/*<div className="row center-xs">*/}
+                    {/*    <div className="col-xs-12  col-sm-6  col-md-4">*/}
+                    {/*        <div className="box">*/}
+                    {/*            <Paper style={styles.paper_info} elevation={1}>*/}
+                    {/*                <div style={styles.text_box_info}>*/}
+                    {/*                    <h4>{texts.header}{room_name}</h4>*/}
+                    {/*                    <div style={styles.text_box_info_details}>*/}
+                    {/*                        <p>*/}
+                    {/*                            {texts.password}*/}
+                    {/*                            <b>{room_password}</b>*/}
+                    {/*                        </p>*/}
+                    {/*                        <p>*/}
+                    {/*                            {texts.connected_info}*/}
+                    {/*                            <b>{Object.keys(room_users).length}</b>*/}
+                    {/*                        </p>*/}
+                    {/*                        <p>*/}
+                    {/*                            {texts.voting_status}*/}
+                    {/*                            <b>{texts.voting_status_text[voting_status]}</b>*/}
+                    {/*                        </p>*/}
+                    {/*                    </div>*/}
+                    {/*                </div>*/}
+                    {/*            </Paper>*/}
+                    {/*        </div>*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
                     <BackBox backLink={StatesConstants.WELCOME} backText="Back to dashboard"/>
                     <Footer />
                 </div>
@@ -418,11 +482,5 @@ class Room extends React.Component {
         }
     }
 }
-
-Room.contextTypes = {
-    router: function () {
-        return React.PropTypes.func.isRequired;
-    }
-};
 
 export default Room;

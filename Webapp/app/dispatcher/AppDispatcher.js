@@ -1,6 +1,6 @@
 import Dispatcher from './Dispatcher';
 
-var AppDispatcher = Object.assign({}, Dispatcher.prototype, {
+const AppDispatcher = Object.assign({}, Dispatcher.prototype, {
 
     handleViewAction: function(action, details) {
         this.dispatch({
@@ -12,4 +12,4 @@ var AppDispatcher = Object.assign({}, Dispatcher.prototype, {
 
 });
 
-module.exports = AppDispatcher;
+export default AppDispatcher;

@@ -1,22 +1,16 @@
 import React from 'react';
-import Paper from 'material-ui/Paper';
-import {blue100, lime500, grey400, deepOrange400} from 'material-ui/styles/colors';
+import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button'
+import {lime, grey, deepOrange, orange, cyan, pink} from '@material-ui/core/colors';
+
 import VotingStore from '../stores/VotingStore';
 import VotingConstants from '../constants/VotingConstants';
 import VotingActions from '../actions/VotingActions';
 
-import {List, ListItem} from 'material-ui/List';
-import ContentInbox from 'material-ui/svg-icons/content/inbox';
-import ContentClear from 'material-ui/svg-icons/content/clear';
-import MapsLocalCafe from 'material-ui/svg-icons/maps/local-cafe';
-import ActionHelpOutline from 'material-ui/svg-icons/action/help-outline';
-import ActionAccessibility from 'material-ui/svg-icons/action/accessibility';
-import Avatar from 'material-ui/Avatar';
-import {grey800, orange200, cyan500, grey700, pinkA200, transparent, black} from 'material-ui/styles/colors';
-
-import FlatButton from 'material-ui/FlatButton'
-import RaisedButton from 'material-ui/RaisedButton';
-
+import ContentClear from '@material-ui/icons/Clear';
+import MapsLocalCafe from '@material-ui/icons/LocalCafe';
+import ActionHelpOutline from '@material-ui/icons/HelpOutline';
+import ActionAccessibility from '@material-ui/icons/Accessibility';
 
 const styles = {
     paper_info: {
@@ -31,19 +25,19 @@ const styles = {
 
     header_text_pending: {
         textAlign: 'center',
-        color: grey400
+        color: grey[400]
     },
     header_text_in_process: {
         textAlign: 'center',
-        color: deepOrange400
+        color: deepOrange[400]
     },
     header_text_voted: {
         textAlign: 'center',
-        color: lime500
+        color: lime[500]
     },
     header_text_finished: {
         textAlign: 'center',
-        color: cyan500
+        color: cyan[500]
     },
 
     slide_box: {
@@ -67,8 +61,8 @@ const styles = {
     },
     sequence_sign: {
         left: 8,
-        backgroundColor: transparent,
-        color: pinkA200
+        backgroundColor: 'transparent',
+        color: pink['A200']
     },
     root: {
         display: 'flex',
@@ -83,26 +77,24 @@ const styles = {
         width: '100%',
         height: '100%',
         fontSize: '2em',
-        backgroundColor: pinkA200,
-        color: black
+        backgroundColor: pink['A200'],
     },
     sequence_picker_special_cancel: {
         width: '100%',
         height: '100%',
         fontSize: '2em',
-        backgroundColor: transparent
+        backgroundColor: 'transparent'
     },
     sequence_picker_special: {
         width: '100%',
         height: '100%',
         fontSize: '2em',
-        backgroundColor: grey700,
-        color: cyan500
+        backgroundColor: grey[700],
+        color: cyan[500]
     },
     sequence_picker_picked: {
-        backgroundColor: orange200,
-        //color: cyan500
-        color: grey800
+        backgroundColor: orange[200],
+        color: grey[800]
     }
 };
 
@@ -115,9 +107,8 @@ const texts = {
     you_voted: 'You have voted:'
 };
 
-import {GridList, GridTile} from 'material-ui/GridList';
-import IconButton from 'material-ui/IconButton';
-import StarBorder from 'material-ui/svg-icons/toggle/star-border';
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
 
 class RoomVotingPanel extends React.Component {
     constructor(props) {
@@ -163,53 +154,58 @@ class RoomVotingPanel extends React.Component {
                     cellHeight={100}
                     padding={1}
                     style={styles.gridList} >
-                    <GridTile
+                    <GridListTile
                         key='cancel' >
-                        <FlatButton
-                            label={<ContentClear style={{width: '30%', height: '30%'}} />}
+                        <Button
                             style={this.sequenceStyle('cancel', styles.sequence_picker_special_cancel)}
                             onClick={this.handlePickVote.bind(this, 'cancel')}
-                            secondary={true} />
-                    </GridTile>
+                            color="primary">
+                            {<ContentClear style={{width: '30%', height: '30%'}} />}
+                        </Button>
+                    </GridListTile>
                     {this.props.sequence.map((elem) => (
-                        <GridTile
+                        <GridListTile
                             style={elem.value === previousUserVote ? {filter: 'brightness(1.5)'} : {}}
                             key={elem.value}
                             title={undefined === elem.title || 0 === elem.title.length ? '' : elem.title} >
-                            <FlatButton
-                                label={elem.value}
+                            <Button
                                 style={this.sequenceStyle(elem.value, styles.sequence_picker)}
                                 onClick={this.handlePickVote.bind(this, elem.value)}
-                                secondary={true} />
-                        </GridTile>
+                                color="primary">
+                                {elem.value}
+                            </Button>
+                        </GridListTile>
                     ))}
-                    <GridTile
+                    <GridListTile
                         style={'?' === previousUserVote ? {filter: 'brightness(1.5)'} : {}}
                         key='?' >
-                        <FlatButton
-                            label={<ActionHelpOutline style={{width: '30%', height: '30%'}} />}
+                        <Button
                             style={this.sequenceStyle('?', styles.sequence_picker_special)}
                             onClick={this.handlePickVote.bind(this, '?')}
-                            secondary={true} />
-                    </GridTile>
-                    <GridTile
+                            color="primary">
+                            {<ActionHelpOutline style={{width: '30%', height: '30%'}} />}
+                        </Button>
+                    </GridListTile>
+                    <GridListTile
                         style={'big' === previousUserVote ? {filter: 'brightness(1.5)'} : {}}
                         key='big' >
-                        <FlatButton
-                            label={<ActionAccessibility style={{width: '30%', height: '30%'}} />}
+                        <Button
                             style={this.sequenceStyle('big', styles.sequence_picker_special)}
                             onClick={this.handlePickVote.bind(this, 'big')}
-                            secondary={true} />
-                    </GridTile>
-                    <GridTile
+                            color="primary">
+                            {<ActionAccessibility style={{width: '30%', height: '30%'}} />}
+                        </Button>
+                    </GridListTile>
+                    <GridListTile
                         style={'cafe' === previousUserVote ? {filter: 'brightness(1.5)'} : {}}
                         key='cafe' >
-                        <FlatButton
-                            label={<MapsLocalCafe style={{width: '30%', height: '30%'}} />}
+                        <Button
                             style={this.sequenceStyle('cafe', styles.sequence_picker_special)}
                             onClick={this.handlePickVote.bind(this, 'cafe')}
-                            secondary={true} />
-                    </GridTile>
+                            color="primary">
+                            {<MapsLocalCafe style={{width: '30%', height: '30%'}} />}
+                        </Button>
+                    </GridListTile>
                 </GridList>
             </div>
         );
@@ -259,7 +255,7 @@ class RoomVotingPanel extends React.Component {
 
     render() {
         return (
-            <Paper style={styles.paper_info} zDepth={1}>
+            <Paper style={styles.paper_info} elevation={1}>
                 {this.renderByStatus()}
             </Paper>
         );

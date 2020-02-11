@@ -1,24 +1,21 @@
 'use strict';
 
 import React from 'react';
-import { Link } from 'react-router'
 
-import {CardHeader, CardText} from 'material-ui/Card';
-import RaisedButton from 'material-ui/RaisedButton';
-import Paper from 'material-ui/Paper';
-import TextField from 'material-ui/TextField';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 import PokerStore from '../stores/PokerStore';
-// import UserStore from '../stores/UserStore.js';
 
-import RoomActions from '../actions/RoomActions';
-// import UserActions from '../actions/UserActions';
+import PokerActions from '../actions/PokerActions';
 
 import RoomConstants from '../constants/RoomConstants';
-import StateMachine from '../controllers/StateMachine';
+import StateActions from '../actions/StateActions';
 import StatesConstants from '../constants/StatesConstants';
 import BackBox from '../components/BackBox.jsx';
+import PropTypes from 'prop-types';
 
 const styles = {
     paper: {
@@ -35,7 +32,8 @@ const styles = {
         textAlign: 'left'
     },
     text_input: {
-        width: '100%'
+        width: '100%',
+        marginTop: 20
     },
     select_input: {
         width: '100%',
@@ -75,7 +73,7 @@ class RoomCreate extends React.Component {
     }
 
     static onJoinedRoom() {
-        StateMachine.changeState(StatesConstants.ROOM.replace(':room_id', PokerStore.getRoomId()));
+        StateActions.changeState(StatesConstants.ROOM.replace(':room_id', PokerStore.getRoomId()));
     }
 
     componentWillUnmount() {
@@ -120,7 +118,7 @@ class RoomCreate extends React.Component {
             //     this.listeners.join_room = PokerStore.registerListener(RoomConstants.EVENT_JOINED_ROOM, this.onJoinedRoom.bind(this));
             // }
 
-            RoomActions.create({
+            PokerActions.create({
                 name: this.state.room_name,
                 password: this.state.room_password,
                 sequence: this.state.sequence
@@ -135,43 +133,48 @@ class RoomCreate extends React.Component {
                     <div className="col-xs-12  col-sm-6  col-md-4">
                         <div className="box">
                             <center>
-                                <Paper style={styles.paper} zDepth={1}>
+                                <Paper style={styles.paper} elevation={1}>
                                     <div style={styles.form_box}>
                                         <h4>{texts.box_title}</h4>
                                         <TextField
-                                            floatingLabelText={texts.input_label_room_name}
-                                            hintText={texts.input_label_room_name}
+                                            variant="outlined"
+                                            label={texts.input_label_room_name}
                                             style={styles.text_input}
                                             name="room_name"
                                             value={this.state.room_name}
                                             onChange={this.collectInputValue.bind(this)}
-                                            errorText={this.state.room_name_valid ? '' : texts.room_name_invalid} />
+                                            helperText={this.state.room_name_valid ? '' : texts.room_name_invalid}
+                                            error={!this.state.room_name_valid} />
                                         <TextField
-                                            floatingLabelText={texts.input_label_room_password}
-                                            hintText={texts.input_label_room_password}
+                                            variant="outlined"
+                                            label={texts.input_label_room_password}
                                             style={styles.text_input}
                                             name="room_password"
                                             value={this.state.room_password}
                                             onChange={this.collectInputValue.bind(this)}
-                                            errorText={this.state.room_password_valid ? '' : texts.room_password_invalid} />
-                                        <SelectField
+                                            helperText={this.state.room_password_valid ? '' : texts.room_password_invalid}
+                                            error={!this.state.room_password_valid} />
+                                        <Select
+                                            variant="outlined"
                                             name='sequence'
                                             value={this.state.sequence}
                                             onChange={this.handleSequenceChange.bind(this)}
                                             style={styles.select_input} >
                                             {
                                                 this.props.available_sequences.map(function (elem) {
-                                                    return <MenuItem key={elem.value} value={elem.value} primaryText={elem.text} />;
+                                                    return <MenuItem key={elem.value} value={elem.value}>{elem.text}</MenuItem>;
                                                 })
                                             }
-                                        </SelectField>
+                                        </Select>
                                         <p style={styles.hint_under_select}>{this.state.sequence_hint}</p>
                                     </div>
-                                    <RaisedButton
-                                        label={texts.save_button}
-                                        primary={true}
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
                                         style={styles.button}
-                                        onClick={this.handleSave.bind(this)} />
+                                        onClick={this.handleSave.bind(this)}>
+                                        {texts.save_button}
+                                    </Button>
                                 </Paper>
                             </center>
                         </div>
@@ -184,7 +187,7 @@ class RoomCreate extends React.Component {
 }
 
 RoomCreate.contextTypes = {
-    router:  React.PropTypes.object
+    router:  PropTypes.object
 };
 RoomCreate.defaultProps = {
     available_sequences: [

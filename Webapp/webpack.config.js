@@ -1,34 +1,41 @@
-var path = require('path');
-var webpack = require('webpack');
-var reactDomLibPath = path.join(__dirname, "./node_modules/react-dom/lib");
-var alias = {};
-["EventPluginHub", "EventConstants", "EventPluginUtils", "EventPropagators",
-    "SyntheticUIEvent", "CSSPropertyOperations", "ViewportMetrics"].forEach(function(filename){
-    alias["react/lib/"+filename] = path.join(__dirname, "./node_modules/react-dom/lib", filename);
-});
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-    resolve: {alias: alias},
     entry: path.join(__dirname, 'app') + '/app.js',
-    output: { path: path.join(__dirname, 'dist'), filename: 'bundle.js' },
+    output: {
+        path: path.join(__dirname, 'public/dist'),
+        filename: 'bundle.js'
+    },
+    devServer: {
+        contentBase: path.join(__dirname, "public"),
+        stats: {
+            children: false,
+            maxModules: 0
+        },
+        port: 3001,
+        historyApiFallback: {
+            index: '/'
+        }
+    },
     module: {
-        loaders: [
+        rules: [
             {
                 test: /\.js|\.jsx$/,
-                loader: 'babel-loader',
                 exclude: /node_modules/,
-                query: {
-                    presets: ['es2015', 'react']
-                }
+                use: {
+                    loader: "babel-loader"
+                },
             },
             {
                 test: /\.css$/,
-                loader: "style-loader!css-loader"
+                use: ["style-loader", "css-loader"]
             }
         ]
     },
-    devServer: {
-        historyApiFallback: true,
-        port: 3001
-    }
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: path.join(__dirname, "public/index.html"),
+        })
+    ]
 };

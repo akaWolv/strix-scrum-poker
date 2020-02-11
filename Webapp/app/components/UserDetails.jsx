@@ -2,9 +2,9 @@
 
 import React from 'react';
 
-import RaisedButton from 'material-ui/RaisedButton';
-import Paper from 'material-ui/Paper';
-import TextField from 'material-ui/TextField';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import TextField from '@material-ui/core/TextField';
 
 import PokerActions from '../actions/PokerActions';
 import StatesConstants from '../constants/StatesConstants';
@@ -53,7 +53,7 @@ class UserDetails extends React.Component {
         super(props);
 
         this.state = {
-            user_name:  '',
+            user_name: '',
             user_name_error: false
         };
         this.listeners = {};
@@ -93,26 +93,26 @@ class UserDetails extends React.Component {
                 <div className="row center-xs">
                     <div className="col-xs-12  col-sm-6  col-md-4">
                         <div className="box">
-                            <center>
-                                <Paper style={styles.paper} zDepth={1}>
-                                    <div style={styles.form_box}>
-                                        <h4>{texts.box_title}</h4>
-                                        <TextField
-                                            floatingLabelText={texts.input_label_user_name}
-                                            hintText={texts.input_label_user_name}
-                                            style={styles.text_input}
-                                            name="user_name"
-                                            value={this.state.user_name}
-                                            onChange={this.collectInputValue.bind(this)}
-                                            errorText={this.state.user_name_error} />
-                                    </div>
-                                    <RaisedButton
-                                        label={texts.save_button}
-                                        primary={true}
-                                        style={styles.button}
-                                        onClick={this.handleSave.bind(this)} />
-                                </Paper>
-                            </center>
+                            <Paper style={styles.paper} elevation={1}>
+                                <div style={styles.form_box}>
+                                    <h4>{texts.box_title}</h4>
+                                    <TextField
+                                        variant="outlined"
+                                        label={texts.input_label_user_name}
+                                        style={styles.text_input}
+                                        name="user_name"
+                                        value={this.state.user_name}
+                                        onChange={this.collectInputValue.bind(this)}
+                                        helperText={this.state.user_name_error}/>
+                                </div>
+                                <Button
+                                    color="primary"
+                                    variant="contained"
+                                    style={styles.button}
+                                    onClick={this.handleSave.bind(this)}>
+                                    {texts.save_button}
+                                </Button>
+                            </Paper>
                         </div>
                     </div>
                 </div>
@@ -121,9 +121,5 @@ class UserDetails extends React.Component {
         );
     }
 }
-
-UserDetails.contextTypes = {
-    room_id: function() { return React.PropTypes.number.isRequired; }
-};
 
 export default UserDetails;

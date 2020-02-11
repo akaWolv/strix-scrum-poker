@@ -19,4 +19,4 @@ var VotingActions = {
     }
 };
 
-module.exports = VotingActions;
+export default VotingActions;

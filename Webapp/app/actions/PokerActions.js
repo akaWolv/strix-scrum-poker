@@ -44,12 +44,12 @@ var PokerActions = {
     registerNewUser: function(name, room_id) {
         Socket.session.emit('register_new_user', {name, room_id});
     },
-    /**
-     * @param id
-     */
-    registerUserById: function(id) {
-        Socket.session.emit('register_user_by_id', {id});
-    },
+    // /**
+    //  * @param id
+    //  */
+    // registerUserById: function(id) {
+    //     Socket.session.emit('register_user_by_id', {id});
+    // },
 };
 
 export default PokerActions;

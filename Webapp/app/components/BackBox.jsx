@@ -1,8 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router'
-import Paper from 'material-ui/Paper';
-import RaisedButton from 'material-ui/RaisedButton';
-import StateMachine from "../controllers/StateMachine";
+import PropTypes from 'prop-types'
+import Paper from '@material-ui/core/Paper';
+// import StateActions from "../actions/StateActions";
+import LinkButton from './LinkButton.jsx';
 
 const styles = {
     paper_bottom_nav: {
@@ -16,33 +16,42 @@ const styles = {
 };
 
 class BackBox extends React.Component {
-    handle() {
-        StateMachine.changeState(
-            this.props.backLink,
-            true === this.props.doDisconnectRoom
-        );
+    renderBox(backLink) {
+        return <div className="box">
+            <Paper style={styles.paper_bottom_nav} elevation={1}>
+                <LinkButton
+                    color="secondary"
+                    variant="outlined"
+                    to={backLink}
+                    style={styles.paper_bottom_nav_button}>
+                    {this.props.backText}
+                </LinkButton>
+            </Paper>
+        </div>;
     }
+
     render() {
-        return (
-            <div className="row center-xs">
-                <div className="col-xs-12  col-sm-6  col-md-4">
-                    <div className="box">
-                        <Paper style={styles.paper_bottom_nav} zDepth={1}>
-                            <Link to={this.props.backLink}>
-                                <RaisedButton style={styles.paper_bottom_nav_button} secondary={true} label={this.props.backText}/>
-                            </Link>
-                        </Paper>
+        const {backLink, renderRow} = this.props;
+
+        if (false === renderRow) {
+            return this.renderBox(backLink);
+        } else {
+            return (
+                <div className="row center-xs">
+                    <div className="col-xs-12  col-sm-6  col-md-4">
+                        { this.renderBox(backLink) }
                     </div>
                 </div>
-            </div>
-        );
+            );
+        }
     }
 }
 
 BackBox.propTypes = {
-    backLink: React.PropTypes.string.isRequired,
-    backText: React.PropTypes.string.isRequired,
-    doDisconnectRoom: React.PropTypes.bool
+    backLink: PropTypes.string.isRequired,
+    backText: PropTypes.string.isRequired,
+    doDisconnectRoom: PropTypes.bool,
+    renderRow: PropTypes.bool
 };
 
 export default BackBox;

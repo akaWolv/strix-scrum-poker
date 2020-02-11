@@ -1,36 +1,27 @@
-import injectTapEventPlugin from 'react-tap-event-plugin';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
+import { lightBlue, cyan } from '@material-ui/core/colors';
 
-import getMuiTheme from 'material-ui/styles/getMuiTheme';
-import darkBaseTheme from 'material-ui/styles/baseThemes/darkBaseTheme';
-
-import {cyan500} from 'material-ui/styles/colors';
-
-import PokerStore from './stores/PokerStore';
 import StateMachine from './controllers/StateMachine';
 
 import '../node_modules/flexboxgrid/dist/flexboxgrid.min.css'
 
-const darkMuiTheme = getMuiTheme(darkBaseTheme);
-// const lightMuiTheme = getMuiTheme(lightBaseTheme);
-
-const muiTheme = getMuiTheme({
+const theme = createMuiTheme({
     palette: {
-        textColor: cyan500
+        type: 'dark',
+        primary: lightBlue,
+        secondary: cyan,
     },
-    appBar: {
-        height: 50
-    }
+    background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
 });
 
-injectTapEventPlugin();
 
 ReactDOM.render(
-    <MuiThemeProvider muiTheme={darkMuiTheme}>
-        <StateMachine pokerStore={PokerStore} />
-    </MuiThemeProvider>,
+    <ThemeProvider theme={theme}>
+        <StateMachine />
+    </ThemeProvider>,
     document.getElementById('app')
 );
