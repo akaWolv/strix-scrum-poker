@@ -8,12 +8,10 @@ const app = express(),
 app.use(express.static(DIST_DIR));
 
 app.get('/bundle.js', (req, res) => {
-    console.log('bundle send');
     res.sendFile(BUNDLE_FILE)
 });
 
 app.get('*', (req, res) => {
-    console.log('index send');
     res.sendFile(HTML_FILE)
 });
 

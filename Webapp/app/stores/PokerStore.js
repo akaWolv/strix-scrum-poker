@@ -111,7 +111,6 @@ Socket.session.on('room_not_found', function () {
 });
 
 Socket.session.on('join_room_anonymous', function (msg) {
-    console.log(' >>>> join_room_anonymous');
     if (null !== msg && undefined !== msg.id) {
         clearUserDetails();
         StateActions.changeState(StatesConstants.ROOM.replace(':room_id', msg.id));
@@ -128,7 +127,6 @@ Socket.session.on('join_room_preview', function (msg) {
 });
 
 Socket.session.on('user_details', function (msg) {
-    console.log('register_user_success');
     PokerStore.setUserDetails(
         msg.id,
         msg.name,

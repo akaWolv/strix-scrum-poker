@@ -103,7 +103,7 @@ class Room extends React.Component {
         const {room_id} = this.props.match.params;
 
         if (undefined !== room_id && undefined === PokerStore.getRoomId()) {
-            console.log('lets join ROOOOOOM');
+            // console.log('lets join ROOOOOOM');
             PokerActions.joinRoomById(room_id);
         }
 
@@ -157,7 +157,6 @@ class Room extends React.Component {
     }
 
     onChangeRoomDetails() {
-        console.log('onChangeRoomDetails');
         let roomDetails = PokerStore.getRoomDetails();
 
         this.detectAdminChange(this.state.room_admin, roomDetails.admin);

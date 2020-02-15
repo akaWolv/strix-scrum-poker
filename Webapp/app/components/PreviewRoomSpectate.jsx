@@ -188,7 +188,6 @@ class PreviewRoomSpectate extends React.Component {
             {location} = window,
             qr_url = location.origin + '/room/' + room_id;
 
-        console.log(room_users);
         return (
             <div>
                 <div className="row center-xs">

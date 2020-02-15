@@ -23,7 +23,7 @@ import PreviewRoomSpectate from '../components/PreviewRoomSpectate.jsx'
 
 class StateMachine extends React.Component {
     constructor(props) {
-        console.log('state machine constructed');
+        // console.log('state machine constructed');
         super(props);
 
         this.state = {

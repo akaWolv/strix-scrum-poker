@@ -13,10 +13,8 @@ var PokerActions = {
         Socket.session.emit('leave_room', {id});
     },
     joinRoomById: function(id) {
-        console.log('>>>>>>>>>>>>>>>');
         const user_id = PokerStore.getUserId();
         Socket.session.emit('join_room', {id, user_id});
-        console.log('+++++++++++++++++');
     },
 
     /**

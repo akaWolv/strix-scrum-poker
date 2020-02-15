@@ -9,7 +9,6 @@ const _ = require('underscore');
 const repo = require('./repo');
 const Table = require("terminal-table");
 
-console.log('Starting app');
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
@@ -476,7 +475,6 @@ function application() {
                 function (err, voteList) {
                     repo.getUsersInRoom(socket.user_details.room_id, function (err, users) {
                         if (users.length === voteList.length) {
-                            console.log('>>>>>>>>>>>>>');
                             withRoomDetails(function (roomDetails) {
                                 _changeVotingSatus(STATUS_FINISHED, roomDetails);
                             });
@@ -547,7 +545,6 @@ function application() {
         ///////////////////////////
 
         function _cancelVote() {
-            console.log('CANCEL_VOTE');
             repo.removeVote(socket.user_details.id);
             _emitUsersThatAlreadyHaveVoted();
             emitter(socket, EMIT_USER_LAST_VOTE);
@@ -625,18 +622,13 @@ function application() {
             && roomDetails.users !== undefined
             && roomDetails.users.length > 0
         ) {
-            console.log('>>>>>>>>>>>>>>>>... NO ADMIN - but users');
             _changeAdmin(roomDetails.id);
         } else {
-            // console.log('>>>>>>>>>>>>>>>>... ADMIN and USERS checking');
             let adminFound = roomDetails.users.filter(function (i) {
                 return roomDetails.admin === i.id;
             }).length;
-// console.log('>>>>>> adminFound: ' + adminFound);
             if (adminFound === 0) {
                 _changeAdmin(roomDetails.id);
-                // } else {
-                //     console.log(roomDetails);
             }
         }
     }
@@ -665,12 +657,10 @@ function application() {
             for (let k in userList) {
                 // if 'in-room' user not connected
                 if (0 === CONNECTIONS_LOG.filter(i => i.id === userList[k].id).length) {
-                    console.log('Remove: ' + userList[k].id);
                     repo.removeVote(userList[k].id);
                     repo.removeRoomConnectionFromUser(userList[k].id);
                     repo.getRoomDetails(userList[k].room_id, function (err, roomDetails) {
                         io.to('room_' + roomDetails.id).emit(EMIT_ROOM_DETAILS, roomDetails);
-                        // _infoLogGlobal(' [ROOM] ' + roomDetails.id + '| ' + EMIT_ROOM_DETAILS, roomDetails)
                     });
                 }
             }
@@ -710,7 +700,6 @@ function application() {
 
     function echoSockets() {
         if (_.values(io.sockets.connected).length === 0) {
-            console.log('no connections');
             setTimeout(echoSockets, 1000)
         } else {
             CONNECTIONS_LOG.splice(0, CONNECTIONS_LOG.length);
@@ -742,7 +731,6 @@ function application() {
             }
 
             // console.log("" + t);
-            console.log('cleanUpOrphansRoomConnections');
             cleanUpOrphansRoomConnections();
             setTimeout(echoSockets, 5000)
         }
@@ -766,7 +754,6 @@ function application() {
         }
         let logDate = new Date();
         logDate = logDate.toISOString().split('T').join(' ').split('Z').join('');
-        console.log(logDate + '|' + log_name + '|' + JSON.stringify(info_log));
     }
 
     http.listen(3003, function () {
