@@ -1,5 +1,7 @@
 import React from 'react';
 
+import {grey} from '@material-ui/core/colors';
+
 const styles = {
     button: {
         display: 'inline',
@@ -30,6 +32,7 @@ class Strix extends React.Component {
         window.open("http://sarcastrix.com");
     }
     render() {
+        return <a href='https://github.com/akawolv' target='_blank' style={{color: grey[500]}}>akaWolv</a>;
         return (
             <button style={styles.button} onClick={this.handleOnClick.bind(this)}>
                 <span style={{lineHeight: '40px'}}>SarcaStrix.com</span>

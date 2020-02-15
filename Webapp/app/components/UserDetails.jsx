@@ -53,7 +53,7 @@ class UserDetails extends React.Component {
         super(props);
 
         this.state = {
-            user_name: '',
+            user_name: PokerStore.getUserName(),
             user_name_error: false
         };
         this.listeners = {};

@@ -12,7 +12,7 @@ const _roomDetails = {
     name: undefined,
     sequence: undefined,
     admin: undefined,
-    users: {},
+    users:  [],
     voting_status: undefined,
     password: undefined
 }, _userDetails = {

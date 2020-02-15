@@ -20,7 +20,12 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ActionDone from '@material-ui/icons/Done';
 import ActionHourGlass from '@material-ui/icons/HourglassEmpty';
 import ActionEventSeat from '@material-ui/icons/EventSeat';
-import {pink, blue, orange, lime, grey, red, lightBlue} from '@material-ui/core/colors';
+import EmojiEmotionsIcon from '@material-ui/icons/EmojiEmotions';
+import ContentClear from '@material-ui/icons/Clear';
+import MapsLocalCafe from '@material-ui/icons/LocalCafe';
+import ActionAccessibility from '@material-ui/icons/Accessibility';
+import ActionHelpOutline from '@material-ui/icons/HelpOutline';
+import {pink, orange, lime, grey, red, lightBlue} from '@material-ui/core/colors';
 
 import Button from '@material-ui/core/Button';
 import _ from 'underscore';
@@ -30,6 +35,7 @@ import RoomVotingPanel from './RoomVotingPanel';
 import BackBox from '../components/BackBox.jsx';
 import Footer from './Footer';
 import UserDetails from "./UserDetails.jsx";
+import UsersVotesList from "../components/UsersVotesList.jsx";
 
 const styles = {
     paper_info: {
@@ -58,24 +64,6 @@ const styles = {
         textAlign: 'left'
     },
 
-    users_list_status_icon: {
-        float: 'right',
-        fontSize: '1.5em',
-        color: blue[100]
-    },
-
-    users_list_status_icon_ok: {
-        float: 'right',
-        fontSize: '1.5em',
-        color: lime[600],
-    },
-
-    users_list_status_icon_bad: {
-        float: 'right',
-        fontSize: '1.5em',
-        color: orange['400']
-    },
-
     no_voting_header: {
         textAlign: 'center',
         color: grey[400]
@@ -99,7 +87,6 @@ const texts = {
     password: 'Passowrd: ',
     admin_name: 'room admin: ',
     voting_status: 'voting status: ',
-    voting_status_text: {},
     connected_info: 'users connected: ',
     user_status: 'Users votes',
     start_new_voting: 'Start new voting',
@@ -108,10 +95,6 @@ const texts = {
     continue_voting: 'Resume',
     admin_panel_header: 'Admin control'
 };
-
-texts.voting_status_text[VotingConstants.STATUS_PENDING] = 'pending';
-texts.voting_status_text[VotingConstants.STATUS_IN_PROCESS] = 'in_process';
-texts.voting_status_text[VotingConstants.STATUS_FINISHED] = 'finished';
 
 class Room extends React.Component {
     constructor(props, context) {
@@ -221,7 +204,9 @@ class Room extends React.Component {
             case VotingConstants.STATUS_IN_PROCESS:
                 let votes = Object.keys(this.state.users_already_voted || {}).length,
                     users = Object.keys(this.state.room_users).length;
-                return <p>Voting status (<span style={{color: votes !== users ? orange['400'] : lime[600]}}>votes: <b>{votes}</b> / users: <b>{users}</b></span>)</p>;
+                return <p>Voting status (<span
+                    style={{color: votes !== users ? orange['400'] : lime[600]}}>votes: <b>{votes}</b> / users: <b>{users}</b></span>)
+                </p>;
             case VotingConstants.STATUS_FINISHED:
                 return <p>Continue current voting or finalize it.</p>;
         }
@@ -235,8 +220,8 @@ class Room extends React.Component {
                         <h4 style={styles.admin_panel_header}>
                             {texts.admin_panel_header}
                         </h4>
-                        { this.renderVotingStatusHints() }
-                        { this.renderAdminPanelButtons() }
+                        {this.renderVotingStatusHints()}
+                        {this.renderAdminPanelButtons()}
                     </div>
                 </Paper>
             )
@@ -328,52 +313,6 @@ class Room extends React.Component {
         }
     }
 
-    renderStatusIcon(usersId) {
-        const {voting_status, users_already_voted, users_votes, highest_vote, lowest_vote} = this.state;
-
-        let icon_to_return,
-            color = grey[700];
-
-        if (VotingConstants.STATUS_IN_PROCESS === voting_status) {
-            if (undefined !== users_already_voted && -1 < users_already_voted.indexOf(usersId)) {
-                icon_to_return = <ActionDone style={styles.users_list_status_icon} />;
-            } else {
-                icon_to_return = <ActionHourGlass style={styles.users_list_status_icon} />;
-            }
-        } else if (VotingConstants.STATUS_FINISHED === voting_status) {
-            if (undefined !== users_votes[usersId]) {
-                if (lowest_vote === highest_vote){
-                    color = lightBlue[700];
-                } else if (lowest_vote === users_votes[usersId]){
-                    color = lime[800];
-                } else if (highest_vote === users_votes[usersId]) {
-                    color = red[700];
-                }
-                icon_to_return = <span style={styles.users_list_status_icon}>
-                    <b style={{color: grey[100]}}>{users_votes[usersId]}</b>
-                </span>;
-            } else {
-                icon_to_return = <span style={styles.users_list_status_icon}><i style={{opacity: '0.4'}}>...</i></span>;
-            }
-        }
-
-        if (undefined === icon_to_return) {
-            icon_to_return = <ActionEventSeat style={styles.users_list_status_icon} />
-        }
-
-        return <ListItemSecondaryAction>
-            <Fab disabled={true}
-                 size='medium'
-                 style={{backgroundColor: color}}>
-                {icon_to_return}
-            </Fab>
-        </ListItemSecondaryAction>;
-    }
-
-    renderRandomAvatar() {
-
-    }
-
     render() {
         const {
             room_id,
@@ -382,13 +321,19 @@ class Room extends React.Component {
             room_password,
             room_users,
             voting_status,
-            room_admin
+            room_admin,
+            users_already_voted,
+            users_votes,
+            highest_vote,
+            lowest_vote
         } = this.state;
 
         if (undefined === room_id) {
-            return <div><center><br /><br />Connecting to Room...</center></div>;
+            return <div>
+                <center><br/><br/>Connecting to Room...</center>
+            </div>;
         } else if (undefined === user_id) {
-            return <UserDetails roomId={room_id} />;
+            return <UserDetails roomId={room_id}/>;
         } else {
             return (
                 <div>
@@ -414,20 +359,14 @@ class Room extends React.Component {
                                     <div style={styles.paper_users_list_box}>
                                         <h4>{texts.user_status}</h4>
                                     </div>
-                                    <List>
-                                        {_.toArray(this.state.room_users).map(function (element) {
-                                            return (
-                                                <ListItem key={element.id}>
-                                                    <ListItemIcon>
-                                                        {<Avatar src="" />}
-                                                    </ListItemIcon>
-                                                    <ListItemText primary={undefined === element.name ? '...' : element.name} />
-                                                    { this.renderStatusIcon(element.id) }
-                                                </ListItem>
-                                            )
-                                        }.bind(this))}
-                                    </List>
-                                    <br />
+                                    <UsersVotesList
+                                        room_users={room_users}
+                                        voting_status={voting_status}
+                                        users_already_voted={users_already_voted}
+                                        users_votes={users_votes}
+                                        highest_vote={highest_vote}
+                                        lowest_vote={lowest_vote} />
+                                    <br/>
                                 </Paper>
                             </div>
                         </div>
@@ -450,33 +389,8 @@ class Room extends React.Component {
                             />
                         </div>
                     </div>
-                    {/*<div className="row center-xs">*/}
-                    {/*    <div className="col-xs-12  col-sm-6  col-md-4">*/}
-                    {/*        <div className="box">*/}
-                    {/*            <Paper style={styles.paper_info} elevation={1}>*/}
-                    {/*                <div style={styles.text_box_info}>*/}
-                    {/*                    <h4>{texts.header}{room_name}</h4>*/}
-                    {/*                    <div style={styles.text_box_info_details}>*/}
-                    {/*                        <p>*/}
-                    {/*                            {texts.password}*/}
-                    {/*                            <b>{room_password}</b>*/}
-                    {/*                        </p>*/}
-                    {/*                        <p>*/}
-                    {/*                            {texts.connected_info}*/}
-                    {/*                            <b>{Object.keys(room_users).length}</b>*/}
-                    {/*                        </p>*/}
-                    {/*                        <p>*/}
-                    {/*                            {texts.voting_status}*/}
-                    {/*                            <b>{texts.voting_status_text[voting_status]}</b>*/}
-                    {/*                        </p>*/}
-                    {/*                    </div>*/}
-                    {/*                </div>*/}
-                    {/*            </Paper>*/}
-                    {/*        </div>*/}
-                    {/*    </div>*/}
-                    {/*</div>*/}
                     <BackBox backLink={StatesConstants.WELCOME} backText="Back to dashboard"/>
-                    <Footer />
+                    <Footer/>
                 </div>
             );
         }

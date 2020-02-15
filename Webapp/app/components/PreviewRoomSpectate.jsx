@@ -13,17 +13,11 @@ import Divider from '@material-ui/core/Divider';
 import VotingStore from '../stores/VotingStore';
 import VotingConstants from '../constants/VotingConstants';
 import HourglassFullTwoToneIcon from '@material-ui/icons/HourglassFullTwoTone';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import _ from 'underscore';
-import Avatar from '@material-ui/core/Avatar';
-import ActionDone from '@material-ui/icons/Done';
-import ActionHourGlass from '@material-ui/icons/HourglassEmpty';
-import ActionEventSeat from '@material-ui/icons/EventSeat';
-import {blue, orange, lime, cyan} from '@material-ui/core/colors';
+import {blue, lime, cyan} from '@material-ui/core/colors';
 import PokerStore from "../stores/PokerStore";
 import RoomInfoBox from '../components/RoomInfoBox.jsx';
 import BackBox from "../components/BackBox.jsx";
+import UsersVotesList from "../components/UsersVotesList.jsx";
 import Footer from "../components/Footer";
 
 import QRCode from 'qrcode.react';
@@ -50,6 +44,11 @@ const styles = {
         textAlign: 'left'
     },
 
+    users_list_status_icon_done: {
+        float: 'right',
+        fontSize: '1.5em',
+        color: lime[500]
+    },
     users_list_status_icon: {
         float: 'right',
         fontSize: '1.5em',
@@ -94,10 +93,23 @@ class PreviewRoomSpectate extends React.Component {
 
         const {room_id} = this.props.match.params;
 
+        if (undefined !== room_id && undefined === PokerStore.getRoomId()) {
+            PokerActions.previewRoomById(room_id);
+        }
+
+        let roomDetails = PokerStore.getRoomDetails();
         this.state = {
-            room_details: undefined,
-            users_votes: undefined,
-            users_already_voted: undefined
+            room_id: roomDetails.id,
+            room_name: roomDetails.name,
+            room_password: roomDetails.password,
+            room_sequence: roomDetails.sequence,
+            room_admin: roomDetails.admin,
+            room_users: roomDetails.users,
+            voting_status: roomDetails.voting_status,
+            users_already_voted: VotingStore.getUsersAlreadyVoted(),
+            users_votes: VotingStore.getUsersVotes(),
+            highest_vote: VotingStore.getHighestVote(),
+            lowest_vote: VotingStore.getLowestVote(),
         };
 
         this.listeners = [
@@ -106,9 +118,6 @@ class PreviewRoomSpectate extends React.Component {
             VotingStore.registerListener(VotingConstants.EVENT_USERS_VOTES, this.onChangeUsersVotes.bind(this))
         ];
 
-        if (undefined !== room_id && undefined === PokerStore.getRoomId()) {
-            PokerActions.previewRoomById(room_id);
-        }
     }
 
     componentWillUnmount() {
@@ -120,21 +129,35 @@ class PreviewRoomSpectate extends React.Component {
     }
 
     onChangeRoomDetails() {
+        const {voting_status} = this.state;
         let roomDetails = PokerStore.getRoomDetails();
 
-        this.setState({
-            room_details: {
-                room_id: roomDetails.id,
-                room_name: roomDetails.name,
-                room_sequence: roomDetails.sequence,
-                room_admin: roomDetails.admin,
-                room_password: roomDetails.password,
-                room_users: roomDetails.users,
-                voting_status: roomDetails.voting_status,
-                user_id: PokerStore.getUserId(),
-                user_name: PokerStore.getUserName(),
-            }
-        });
+        let newStatus = {
+            room_id: roomDetails.id,
+            room_name: roomDetails.name,
+            room_sequence: roomDetails.sequence,
+            room_admin: roomDetails.admin,
+            room_password: roomDetails.password,
+            voting_status: roomDetails.voting_status,
+            user_id: PokerStore.getUserId(),
+            user_name: PokerStore.getUserName()
+        };
+
+        // only during voting
+        if (roomDetails.voting_status === VotingConstants.STATUS_IN_PROCESS) {
+            newStatus['users_already_voted'] = VotingStore.getUsersAlreadyVoted();
+        }
+
+        // only when changing status OR status is not finished
+        if (voting_status !== roomDetails.voting_status
+            || roomDetails.voting_status !== VotingConstants.STATUS_FINISHED) {
+            newStatus['room_users'] = roomDetails.users;
+            newStatus['users_votes'] = VotingStore.getUsersVotes();
+            newStatus['highest_vote'] = VotingStore.getHighestVote();
+            newStatus['lowest_vote'] = VotingStore.getLowestVote();
+        }
+
+        this.setState(newStatus);
     }
 
     onChangeUsersVotes() {
@@ -142,68 +165,50 @@ class PreviewRoomSpectate extends React.Component {
     }
 
     onChangeUsersAlreadyVoted() {
-        this.setState({users_already_voted: VotingStore.getUsersAlreadyVoted()});
-    }
+        const {voting_status} = this.state;
 
-    renderStatusIcon(usersId, votingStatus, usersAlreadyVoted, usersVotes) {
-
-        if (VotingConstants.STATUS_IN_PROCESS === votingStatus) {
-            if (undefined !== usersAlreadyVoted && -1 < usersAlreadyVoted.indexOf(usersId)) {
-                return <ActionDone style={styles.users_list_status_icon} color={lime['500']}/>;
-            } else {
-                return <ActionHourGlass style={styles.users_list_status_icon} color={orange['400']}/>;
-            }
-        } else if (VotingConstants.STATUS_FINISHED === votingStatus) {
-            if (undefined !== usersVotes[usersId]) {
-                return <span style={styles.users_list_status_icon}><b>{usersVotes[usersId]}</b></span>;
-            } else {
-                return <span style={styles.users_list_status_icon}><i>no vote</i></span>;
-            }
+        if (voting_status === VotingConstants.STATUS_IN_PROCESS) {
+            this.setState({users_already_voted: VotingStore.getUsersAlreadyVoted()});
         }
-
-        return <ActionEventSeat style={styles.users_list_status_icon} />;
     }
 
     render() {
         const {
-                users_votes,
-                users_already_voted,
-                room_details
-            } = this.state,
-            {location} = window;
-
-        if (undefined === room_details) {
-            return <div></div>;
-        }
-        const {
                 room_id,
                 room_users,
+                room_password,
                 room_admin,
                 room_name,
                 voting_status,
-            } = room_details,
+                users_already_voted,
+                users_votes,
+                highest_vote,
+                lowest_vote
+            } = this.state,
+            {location} = window,
             qr_url = location.origin + '/room/' + room_id;
 
+        console.log(room_users);
         return (
             <div>
                 <div className="row center-xs">
                     <div className="col-xs-12  col-sm-6  col-md-4">
-                        <RoomInfoBox
-                            room_name={room_name}
-                            room_users={room_users}
-                            room_admin={room_admin}
-                            voting_status={voting_status}
-                        />
-
                         <div className="box">
                             <Paper style={styles.paper} elevation={1}>
                                 <center>
                                     <QRCode
-                                        size={256}
+                                        size={300}
                                         value={qr_url}/>
                                 </center>
                             </Paper>
                         </div>
+                        <RoomInfoBox
+                            room_name={room_name}
+                            room_password={room_password}
+                            room_users={room_users}
+                            room_admin={room_admin}
+                            voting_status={voting_status}
+                        />
 
                         <BackBox
                             backLink={StatesConstants.WELCOME}
@@ -211,6 +216,7 @@ class PreviewRoomSpectate extends React.Component {
                             doDisconnectRoom={true}
                             renderRow={false}
                         />
+                        <Footer renderRow={false}/>
                     </div>
                     <div className="col-xs-12  col-sm-6  col-md-4">
                         <div className="box" style={{marginBottom: 10}}>
@@ -221,7 +227,7 @@ class PreviewRoomSpectate extends React.Component {
                                 <Divider light={true}/>
                                 <br/>
                                 {
-                                    room_users.length === 0
+                                    undefined !== room_users && room_users.length === 0
                                         ? <div style={styles.waiting}>
                                             <HourglassFullTwoToneIcon color={'secondary'} style={{fontSize: 60}}/>
                                             <br/>
@@ -229,27 +235,16 @@ class PreviewRoomSpectate extends React.Component {
                                         </div>
                                         : null
                                 }
-                                <List>
-                                    {_.toArray(room_users).map(function (element) {
-                                        return (
-                                            <ListItem
-                                                key={element.id}
-                                                primary={undefined === element.name ? '...' : element.name}
-                                                leftAvatar={<Avatar src=""/>}>
-                                                {this.renderStatusIcon(
-                                                    element.id,
-                                                    voting_status,
-                                                    users_already_voted,
-                                                    users_votes
-                                                )}
-                                            </ListItem>
-                                        )
-                                    }.bind(this))}
-                                </List>
-                                <br />
+                                <UsersVotesList
+                                    room_users={room_users}
+                                    voting_status={voting_status}
+                                    users_already_voted={users_already_voted}
+                                    users_votes={users_votes}
+                                    highest_vote={highest_vote}
+                                    lowest_vote={lowest_vote} />
+                                <br/>
                             </Paper>
                         </div>
-                        <Footer renderRow={false} />
                     </div>
                 </div>
             </div>

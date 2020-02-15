@@ -13,6 +13,8 @@ import Avatar from "@material-ui/core/Avatar";
 import ListItemText from "@material-ui/core/ListItemText";
 import VotingConstants from "../constants/VotingConstants";
 
+import {grey, amber} from '@material-ui/core/colors';
+
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import HowToVoteIcon from '@material-ui/icons/HowToVote';
 import StarsIcon from '@material-ui/icons/Stars';
@@ -29,7 +31,11 @@ const styles = {
         padding: 20,
         marginBottom: 10,
         textAlign: 'left',
+        backgroundColor: grey[900]
     },
+    info_icon: {
+        backgroundColor: amber[200]
+    }
 };
 
 const texts = {
@@ -41,7 +47,7 @@ const texts = {
     voting_status: 'voting status',
 };
 texts.voting_status_text[VotingConstants.STATUS_PENDING] = 'pending';
-texts.voting_status_text[VotingConstants.STATUS_IN_PROCESS] = 'in_process';
+texts.voting_status_text[VotingConstants.STATUS_IN_PROCESS] = 'in process';
 texts.voting_status_text[VotingConstants.STATUS_FINISHED] = 'finished';
 
 class RoomInfoBox extends React.Component {
@@ -62,8 +68,8 @@ class RoomInfoBox extends React.Component {
                 <List styles={styles.info_box_root}>
                     <ListItem>
                         <ListItemAvatar>
-                            <Avatar>
-                                <MeetingRoomIcon/>
+                            <Avatar style={styles.info_icon}>
+                                <MeetingRoomIcon />
                             </Avatar>
                         </ListItemAvatar>
                         <ListItemText
@@ -75,8 +81,8 @@ class RoomInfoBox extends React.Component {
                             ? null
                             : <ListItem>
                                 <ListItemAvatar>
-                                    <Avatar>
-                                        <LockOpenIcon/>
+                                    <Avatar style={styles.info_icon}>
+                                        <LockOpenIcon />
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText
@@ -86,8 +92,8 @@ class RoomInfoBox extends React.Component {
                     }
                     <ListItem>
                         <ListItemAvatar>
-                            <Avatar>
-                                <StarsIcon  />
+                            <Avatar style={styles.info_icon}>
+                                <StarsIcon />
                             </Avatar>
                         </ListItemAvatar>
                         <ListItemText
@@ -96,8 +102,8 @@ class RoomInfoBox extends React.Component {
                     </ListItem>
                     <ListItem>
                         <ListItemAvatar>
-                            <Avatar>
-                                <HowToVoteIcon/>
+                            <Avatar style={styles.info_icon}>
+                                <HowToVoteIcon />
                             </Avatar>
                         </ListItemAvatar>
                         <ListItemText

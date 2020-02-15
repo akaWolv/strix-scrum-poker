@@ -1,0 +1,15 @@
+{
+  "name": "strix-scrum-poker",
+  "main": "main.js",
+  "version": "0.1.0",
+  "description": "strix scrum poker solution",
+  "scripts": {
+    "build": "cd Webapp && npm build",
+    "webapp": "cd Webapp && npm start",
+    "server": "cd Server && npm start",
+    "start": "npm build && concurrently \"npm run server\" \"npm run webapp\" "
+  },
+  "dependencies": {
+    "concurrently": "^5.1.0"
+  }
+}

@@ -6,15 +6,19 @@ import {lime, grey, deepOrange, orange, cyan, pink} from '@material-ui/core/colo
 import VotingStore from '../stores/VotingStore';
 import VotingConstants from '../constants/VotingConstants';
 import VotingActions from '../actions/VotingActions';
+import Chip from '@material-ui/core/Chip';
 
 import ContentClear from '@material-ui/icons/Clear';
 import MapsLocalCafe from '@material-ui/icons/LocalCafe';
 import ActionHelpOutline from '@material-ui/icons/HelpOutline';
 import ActionAccessibility from '@material-ui/icons/Accessibility';
+import HourglassFullTwoToneIcon from '@material-ui/icons/HourglassFullTwoTone';
 
 const styles = {
     paper_info: {
-        marginBottom: 10
+        marginBottom: 10,
+        backgroundColor: grey[900],
+        padding: 4
     },
 
     paper_users_list_box: {
@@ -135,13 +139,13 @@ class RoomVotingPanel extends React.Component {
     }
 
     renderPending() {
-        return (
-            <div style={styles.paper_users_list_box}>
-                <h4 style={styles.header_text_pending}>
-                    {texts.pending}
-                </h4>
-            </div>
-        );
+        return <Chip
+            color="secondary"
+            variant="outlined"
+            icon={<HourglassFullTwoToneIcon />}
+            label="awaiting new voting"
+            style={{margin: 5}}
+        />;
     }
 
     renderInProcess() {
@@ -210,6 +214,7 @@ class RoomVotingPanel extends React.Component {
             </div>
         );
     }
+
     sequenceStyle(value, style) {
         let returnStyle = {};
         if (undefined !== this.state.vote_picked && value === this.state.vote_picked) {
@@ -226,20 +231,13 @@ class RoomVotingPanel extends React.Component {
     }
 
     renderFinished() {
-        return (
-            <div style={styles.paper_users_list_box}>
-                <h4 style={styles.header_text_finished}>
-                    {texts.finished}
-                </h4>
-                <h4 style={styles.header_text_finished}>
-                    {
-                        undefined === this.state.vote_picked || 'cancel' === this.state.vote_picked
-                        ? texts.not_voted
-                        : texts.you_voted + ' \'' + this.state.vote_picked + '\''
-                    }
-                </h4>
-            </div>
-        );
+        return <Chip
+            color="primary"
+            variant="outlined"
+            icon={<HourglassFullTwoToneIcon />}
+            label="voting finished, awaiting new voting"
+            style={{margin: 5}}
+        />;
     }
 
     renderByStatus() {
@@ -249,7 +247,7 @@ class RoomVotingPanel extends React.Component {
             case VotingConstants.STATUS_IN_PROCESS:
                 return this.renderInProcess();
             case VotingConstants.STATUS_FINISHED:
-                return null; // this.renderFinished();
+                return this.renderFinished();
         }
     }
 
