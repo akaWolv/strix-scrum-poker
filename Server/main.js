@@ -432,21 +432,11 @@ function application() {
                     case STATUS_IN_PROCESS:
                         hideVotes();
                         roomEmitter(EMIT_USER_LAST_VOTE, undefined);
-                        // repo.getUserVote(
-                        //     roomsDetails.id,
-                        //     socket.user_details.id,
-                        //     (err, vote) => emitter(socket, EMIT_USER_LAST_VOTE, vote)
-                        // );
                         break;
                     case STATUS_CONTINUE:
                         keepPreviousVotes();
                         clearVotes();
                         roomEmitter(EMIT_USER_LAST_VOTE, undefined);
-                        // repo.getUserVote(
-                        //     roomsDetails.id,
-                        //     socket.user_details.id,
-                        //     (err, vote) => emitter(socket, EMIT_USER_LAST_VOTE, vote)
-                        // );
                         break;
                     case STATUS_FINISHED:
                         showVotes();
@@ -633,6 +623,13 @@ function application() {
         }
     }
 
+    function ensureAnyUserConnected(roomDetails) {
+        if (roomDetails.users.length === 0) {
+            roomDetails.voting_status = STATUS_PENDING;
+            repo.saveRoom(roomDetails);
+        }
+    }
+
     function _changeAdmin(room_id) {
         repo.getRoomDetails(room_id, function (err, roomDetails) {
             const adminBefore = undefined === roomDetails.admin ? undefined : roomDetails.admin;
@@ -672,6 +669,7 @@ function application() {
                     roomList[k].id,
                     function (err, roomDetails) {
                         ensureCorrectAdmin(roomDetails);
+                        ensureAnyUserConnected(roomDetails);
                     }
                 );
             }
@@ -754,6 +752,7 @@ function application() {
         }
         let logDate = new Date();
         logDate = logDate.toISOString().split('T').join(' ').split('Z').join('');
+        console.log(logDate + '|' + log_name + '|' + JSON.stringify(info_log));
     }
 
     http.listen(3003, function () {
