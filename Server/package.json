@@ -7,6 +7,9 @@
     "type": "git",
     "url": "git@github.com:akaWolv/strix-scrum-poker.git"
   },
+  "engines": {
+    "node": "10.x"
+  },
   "license": "CC-BY-4.0",
   "dependencies": {
     "diskdb": "^0.1.17",
