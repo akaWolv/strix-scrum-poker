@@ -3,6 +3,11 @@
   "main": "main.js",
   "version": "0.1.0",
   "description": "strix scrum poker solution",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:akaWolv/strix-scrum-poker.git"
+  },
+  "license": "CC-BY-4.0",
   "scripts": {
     "webapp": "cd Webapp && npm run install:start",
     "server": "cd Server && npm run install:start",
