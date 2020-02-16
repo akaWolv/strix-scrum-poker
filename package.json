@@ -4,7 +4,6 @@
   "version": "0.1.0",
   "description": "strix scrum poker solution",
   "scripts": {
-    "build": "cd Webapp && npm build",
     "webapp": "cd Webapp && npm run install:start",
     "server": "cd Server && npm run install:start",
     "start": "npm build && concurrently \"npm run server\" \"npm run webapp\" "
