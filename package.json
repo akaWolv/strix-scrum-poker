@@ -12,11 +12,10 @@
   },
   "license": "CC-BY-4.0",
   "scripts": {
-    "webapp": "cd Webapp && npm run install:start",
-    "server": "cd Server && npm run install:start",
-    "start": "npm build && concurrently \"npm run server\" \"npm run webapp\" "
+    "start": "cd Server && npm run install:start"
   },
   "dependencies": {
-    "concurrently": "^5.1.0"
+    "concurrently": "^5.1.0",
+    "subdomain-router": "^0.1.3"
   }
 }

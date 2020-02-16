@@ -1,16 +1,20 @@
 require('dotenv').config();
 const app = require('express')();
+const fs = require('fs');
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const crypto = require('crypto');
 const uuid = require('uuid');
 // var mongojs = require('mongojs');
 const _ = require('underscore');
 const repo = require('./repo');
 const Table = require("terminal-table");
 
+const path = require('path');
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(path.resolve(__dirname + '/../Webapp/public/index.html'));
+});
+app.get('/bundle.js', function (req, res) {
+    res.sendFile(path.resolve(__dirname + '/../Webapp/public/dist/bundle.js'));
 });
 
 // SYSTEM
@@ -22,16 +26,12 @@ const REGISTER_NEW_USER = 'register_new_user';
 const REGISTER_USER_BY_ID = 'register_user_by_id';
 const EMIT_USER_DETAILS = 'user_details';
 const EMIT_REGISTER_USER_FAIL = 'register_user_fail';
-const EMIT_REGISTER_USER_SUCCESS = 'register_user_success';
 const EMIT_USER_NOT_FOUND = 'user_not_found';
-
-const EMIT_INTRODUCE_YOURSELF = 'hello';
 
 // ROOM
 const PREVIEW_ROOM = 'preview_room';
 const CREATE_ROOM = 'create_room';
 const EMIT_CREATE_ROOM_FAIL = 'create_room_fail';
-const EMIT_CREATE_ROOM_SUCCESS = 'create_room_success';
 const EMIT_ROOM_DETAILS = 'room_details';
 const EMIT_ROOM_NOT_FOUND = 'room_not_found';
 const EMIT_JOIN_ROOM_SUCCESS = 'join_room_success';
@@ -59,7 +59,7 @@ const EMIT_FORGET_PREVIOUS_USERS_VOTES = 'forget_previous_users_votes';
 
 const CONNECTIONS_LOG = [];
 
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT || 5001;
 
 function application() {
 
@@ -191,56 +191,6 @@ function application() {
             _infoLog(' [>>>>>] DISCONNECT: ');
             _disconnectUser();
         });
-
-        //
-        //
-        //
-        //
-        //
-
-        // function _pickAdmin(roomsDetails, afterWaitPeriod) {
-        //     _infoLogGlobal('CHECKING ROOM ADMIN', roomsDetails);
-        //     if (undefined !== roomsDetails.users[0]) {
-        //         if (undefined === roomsDetails.admin) {
-        //             _pickAdmin(roomsDetails, true);
-        //         } else {
-        //             // if admin present in room
-        //             for (let a in roomsDetails.users) {
-        //                 if (roomsDetails.admin === roomsDetails.users[a].id) {
-        //                     _infoLogGlobal('CHECKING ROOM ADMIN | same admin');
-        //                     return true;
-        //                 }
-        //             }
-        //         }
-        //     }
-        //
-        //     if (true === afterWaitPeriod) {
-        //         // admin left - pick next user as admin
-        //         if (undefined !== roomsDetails.users[0]) {
-        //             _infoLogGlobal('CHECKING ROOM ADMIN | admin changed');
-        //             let newRoomsDetails = roomsDetails;
-        //             newRoomsDetails.admin = roomsDetails.users[0].id;
-        //             repo.saveRoom(
-        //                 newRoomsDetails,
-        //                 function (err, roomDetails) {
-        //                     roomEmitter(EMIT_ROOM_DETAILS, roomDetails)
-        //                 });
-        //             return true;
-        //         }
-        //     } else {
-        //         // wait few seconds in case of reloading
-        //         setTimeout(function () {
-        //             repo.getRoomDetails(
-        //                 roomsDetails.id,
-        //                 function (err, roomsDetails) {
-        //                     if (undefined !== roomsDetails.id) {
-        //                         _pickAdmin(roomsDetails, true);
-        //                     }
-        //                 }
-        //             )
-        //         }, 5000);
-        //     }
-        // }
 
         function _disconnectUser() {
             _cancelVote();
@@ -422,30 +372,30 @@ function application() {
         });
 
         function _changeVotingSatus(status, roomDetails) {
-                roomDetails.voting_status = status === STATUS_CONTINUE ? STATUS_IN_PROCESS : status;
-                repo.saveRoom(roomDetails);
+            roomDetails.voting_status = status === STATUS_CONTINUE ? STATUS_IN_PROCESS : status;
+            repo.saveRoom(roomDetails);
 
-                switch (status) {
-                    case STATUS_PENDING:
-                        clearVotes();
-                        roomEmitter(EMIT_USER_LAST_VOTE, undefined);
-                        forgetPreviousVotes();
-                        break;
-                    case STATUS_IN_PROCESS:
-                        hideVotes();
-                        roomEmitter(EMIT_USER_LAST_VOTE, undefined);
-                        break;
-                    case STATUS_CONTINUE:
-                        keepPreviousVotes();
-                        clearVotes();
-                        roomEmitter(EMIT_USER_LAST_VOTE, undefined);
-                        break;
-                    case STATUS_FINISHED:
-                        showVotes();
-                        break;
-                }
+            switch (status) {
+                case STATUS_PENDING:
+                    clearVotes();
+                    roomEmitter(EMIT_USER_LAST_VOTE, undefined);
+                    forgetPreviousVotes();
+                    break;
+                case STATUS_IN_PROCESS:
+                    hideVotes();
+                    roomEmitter(EMIT_USER_LAST_VOTE, undefined);
+                    break;
+                case STATUS_CONTINUE:
+                    keepPreviousVotes();
+                    clearVotes();
+                    roomEmitter(EMIT_USER_LAST_VOTE, undefined);
+                    break;
+                case STATUS_FINISHED:
+                    showVotes();
+                    break;
+            }
 
-                _emitRoomDetails(roomDetails.id)
+            _emitRoomDetails(roomDetails.id)
         }
 
         function _emitUsersThatAlreadyHaveVoted() {
