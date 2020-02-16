@@ -10,11 +10,14 @@ const repo = require('./repo');
 const Table = require("terminal-table");
 
 const path = require('path');
-app.get('/', function (req, res) {
-    res.sendFile(path.resolve(__dirname + '/../Webapp/public/index.html'));
+app.get('/socket.io/*', function (req, res) {
+    // res.sendFile(path.resolve(__dirname + '/../Webapp/public/index.html'));
 });
 app.get('/bundle.js', function (req, res) {
     res.sendFile(path.resolve(__dirname + '/../Webapp/public/dist/bundle.js'));
+});
+app.get('/*', function (req, res) {
+    res.sendFile(path.resolve(__dirname + '/../Webapp/public/index.html'));
 });
 
 // SYSTEM
