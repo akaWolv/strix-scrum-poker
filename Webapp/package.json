@@ -1,7 +1,7 @@
 {
-  "name": "basior_scrum_poker",
+  "name": "strix_scrum_poker",
   "version": "0.0.1",
-  "description": "basior scrum poker solution",
+  "description": "strix scrum poker solution",
   "main": "main.js",
   "dependencies": {
     "express": "^4.17.1"
@@ -52,6 +52,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./server.js",
     "build": "webpack",
+    "install:start": "npm i && npm start",
     "start:dev": "webpack-dev-server  --hot --watch --progress --colors --content-base dist --mode development"
   },
   "repository": {

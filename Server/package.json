@@ -14,6 +14,7 @@
   },
   "scripts": {
     "start": "node ./main.js",
+    "install:start": "npm i && npm start",
     "start:dev": "nodemon main.js --ignore 'storage/*.json'"
   },
   "devDependencies": {
