@@ -59,6 +59,8 @@ const EMIT_FORGET_PREVIOUS_USERS_VOTES = 'forget_previous_users_votes';
 
 const CONNECTIONS_LOG = [];
 
+const PORT = process.env.PORT || 3003;
+
 function application() {
 
     io.on(CONNECTION, function (socket) {
@@ -674,15 +676,6 @@ function application() {
                 );
             }
         });
-
-        // repo.getAllVotes(function (err, votesList) {
-        //     for (let k in votesList) {
-        //         if (0 === CONNECTIONS_LOG.filter(i => i.id === votesList[k].user_id).length) {
-        //             repo.removeVote(votesList[k].user_id);
-        //             _emitRoomDetails(votesList[k].room_id);
-        //         }
-        //     }
-        // });
     }
 
     /**
@@ -755,8 +748,8 @@ function application() {
         console.log(logDate + '|' + log_name + '|' + JSON.stringify(info_log));
     }
 
-    http.listen(3003, function () {
-        console.log('listening on *:3003');
+    http.listen(PORT, function () {
+        console.log(`listening on *:${PORT}`);
     });
 }
 
