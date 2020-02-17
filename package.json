@@ -12,7 +12,7 @@
   },
   "license": "CC-BY-4.0",
   "scripts": {
-    "start": "echo port:${PORT} && cd Server && npm run install:start"
+    "start": "echo port:${PORT} && cd Server && npm start"
   },
   "devDependencies": {
     "concurrently": "^5.1.0"

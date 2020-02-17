@@ -21,7 +21,7 @@
     "uuid": "^2.0.3"
   },
   "scripts": {
-    "start": "node ./main.js",
+    "start": "node main.js",
     "install:start": "npm i && npm start",
     "start:dev": "nodemon main.js --ignore 'storage/*.json'"
   },
