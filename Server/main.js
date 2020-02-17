@@ -64,6 +64,8 @@ const CONNECTIONS_LOG = [];
 
 const PORT = process.env.PORT || 3003;
 
+console.log('Initializing server with port ' + PORT);
+
 function application() {
 
     io.on(CONNECTION, function (socket) {

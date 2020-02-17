@@ -15,7 +15,7 @@ app.get('*', (req, res) => {
     res.sendFile(HTML_FILE)
 });
 
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
     console.log(`App listening to ${PORT}....`);

@@ -1,7 +1,7 @@
 {
   "name": "strix-scrum-poker",
   "main": "main.js",
-  "version": "0.1.0",
+  "version": "0.10.3",
   "description": "strix scrum poker solution",
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
   },
   "license": "CC-BY-4.0",
   "scripts": {
-    "start": "cd Server && npm run install:start"
+    "start": "echo port:${PORT} && cd Server && npm run install:start"
   },
   "devDependencies": {
     "concurrently": "^5.1.0"
