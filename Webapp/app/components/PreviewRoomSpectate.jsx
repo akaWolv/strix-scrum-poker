@@ -195,9 +195,12 @@ class PreviewRoomSpectate extends React.Component {
                         <div className="box">
                             <Paper style={styles.paper} elevation={1}>
                                 <center>
-                                    <QRCode
-                                        size={300}
-                                        value={qr_url}/>
+                                        <QRCode
+                                            size={300}
+                                            fgColor={'white'}
+                                            bgColor={'black'}
+                                            level={'L'}
+                                            value={qr_url} />
                                 </center>
                             </Paper>
                         </div>

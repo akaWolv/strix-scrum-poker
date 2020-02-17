@@ -62,7 +62,7 @@ const EMIT_FORGET_PREVIOUS_USERS_VOTES = 'forget_previous_users_votes';
 
 const CONNECTIONS_LOG = [];
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 3003;
 
 function application() {
 

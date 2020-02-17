@@ -1,6 +1,8 @@
 import io from 'socket.io-client'
 
-const socket_host = window.location.hostname + ':' + location.port,
+const port = location.hostname === 'localhost' ? 3003 : location.port;
+
+const socket_host = window.location.hostname + ':' + port,
     socket_session = io(
         socket_host,
         {
