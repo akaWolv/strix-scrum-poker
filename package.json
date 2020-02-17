@@ -16,5 +16,16 @@
     "install:server": "cd Server && npm install",
     "install:webapp": "cd Webapp && npm install",
     "postinstall": "npm install --prefix ./Server"
+  },
+  "dependencies": {
+    "bufferutil": "^4.0.1",
+    "diskdb": "^0.1.17",
+    "dotenv": "^6.2.0",
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0",
+    "terminal-table": "0.0.12",
+    "underscore": "^1.9.1",
+    "utf-8-validate": "^5.0.2",
+    "uuid": "^2.0.3"
   }
 }
