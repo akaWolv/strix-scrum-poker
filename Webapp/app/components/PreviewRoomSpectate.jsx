@@ -110,6 +110,7 @@ class PreviewRoomSpectate extends React.Component {
             users_votes: VotingStore.getUsersVotes(),
             highest_vote: VotingStore.getHighestVote(),
             lowest_vote: VotingStore.getLowestVote(),
+            qr_url: window.location.origin + '/room/' + room_id
         };
 
         this.listeners = [
@@ -174,7 +175,6 @@ class PreviewRoomSpectate extends React.Component {
 
     render() {
         const {
-                room_id,
                 room_users,
                 room_password,
                 room_admin,
@@ -183,10 +183,9 @@ class PreviewRoomSpectate extends React.Component {
                 users_already_voted,
                 users_votes,
                 highest_vote,
-                lowest_vote
-            } = this.state,
-            {location} = window,
-            qr_url = location.origin + '/room/' + room_id;
+                lowest_vote,
+                qr_url
+            } = this.state;
 
         return (
             <div>
@@ -196,10 +195,10 @@ class PreviewRoomSpectate extends React.Component {
                             <Paper style={styles.paper} elevation={1}>
                                 <center>
                                         <QRCode
+                                            alt={qr_url}
                                             size={300}
                                             fgColor={'white'}
                                             bgColor={'black'}
-                                            level={'L'}
                                             value={qr_url} />
                                 </center>
                             </Paper>
