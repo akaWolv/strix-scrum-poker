@@ -15,6 +15,9 @@
     "start": "echo port:${PORT} && cd Server && npm start",
     "install:server": "cd Server && npm install",
     "install:webapp": "cd Webapp && npm install",
-    "install": "npm run install:server && npm run install:webapp"
+    "postinstall": "concurrently \"npm run install:server\" \"npm run install:webapp\" "
+  },
+  "dependencies": {
+    "concurrently": "^5.1.0"
   }
 }
