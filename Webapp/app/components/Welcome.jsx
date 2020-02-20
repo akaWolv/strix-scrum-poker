@@ -85,7 +85,7 @@ class Welcome extends React.Component {
                             <Paper style={styles.paper_welcome} elevation={1}>
                                 <div style={styles.text_box_welcome}>
                                     <h2>{texts.welcome_header}</h2>
-                                    <span style={{fontSize: '.8em'}}>{texts.welcome_sub}</span>
+                                    {/*<span style={{fontSize: '.8em'}}>{texts.welcome_sub}</span>*/}
                                 </div>
                             </Paper>
                             {
