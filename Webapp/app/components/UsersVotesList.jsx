@@ -15,12 +15,10 @@ import Person from '@material-ui/icons/Person';
 import {lime, grey, red, lightBlue, amber, blue} from '@material-ui/core/colors';
 import PropTypes from "prop-types";
 import List from "@material-ui/core/List";
-import _ from "underscore";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import Avatar from "@material-ui/core/Avatar";
 import ListItemText from "@material-ui/core/ListItemText";
-import Paper from "@material-ui/core/Paper";
 
 const styles = {
     users_list_status_icon_done: {

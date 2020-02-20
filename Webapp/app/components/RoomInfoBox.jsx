@@ -86,7 +86,7 @@ class RoomInfoBox extends React.Component {
                                     </Avatar>
                                 </ListItemAvatar>
                                 <ListItemText
-                                    primary={room_name}
+                                    primary={room_password}
                                     secondary={texts.password}/>
                             </ListItem>
                     }

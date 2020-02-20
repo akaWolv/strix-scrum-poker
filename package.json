@@ -1,19 +1,31 @@
 {
   "name": "strix-scrum-poker",
   "main": "main.js",
-  "version": "0.1.0",
+  "version": "0.10.3",
   "description": "strix scrum poker solution",
   "repository": {
     "type": "git",
     "url": "git@github.com:akaWolv/strix-scrum-poker.git"
   },
+  "engines": {
+    "node": "10.x"
+  },
   "license": "CC-BY-4.0",
   "scripts": {
-    "webapp": "cd Webapp && npm run install:start",
-    "server": "cd Server && npm run install:start",
-    "start": "npm build && concurrently \"npm run server\" \"npm run webapp\" "
+    "start": "echo port:${PORT} && cd Server && npm start",
+    "install:server": "cd Server && npm install",
+    "install:webapp": "cd Webapp && npm install",
+    "postinstall": "npm install --prefix ./Server"
   },
   "dependencies": {
-    "concurrently": "^5.1.0"
+    "bufferutil": "^4.0.1",
+    "diskdb": "^0.1.17",
+    "dotenv": "^6.2.0",
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0",
+    "terminal-table": "0.0.12",
+    "underscore": "^1.9.1",
+    "utf-8-validate": "^5.0.2",
+    "uuid": "^2.0.3"
   }
 }

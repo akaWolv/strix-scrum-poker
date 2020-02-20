@@ -6,6 +6,9 @@
   "dependencies": {
     "express": "^4.17.1"
   },
+  "engines": {
+    "node": "10.x"
+  },
   "devDependencies": {
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
@@ -60,14 +63,14 @@
     "url": "git@github.com:akaWolv/strix-scrum-poker.git"
   },
   "keywords": [
-    "basior",
+    "strix",
     "scrum",
     "poker"
   ],
   "author": "Pavel 'Wolv' Nejczew",
   "license": "CC-BY-4.0",
   "bugs": {
-    "url": "https://github.com/akaWolv/basior_scrum_poker/issues"
+    "url": "https://github.com/akaWolv/strix-scrum-poker/issues"
   },
-  "homepage": "https://github.com/akaWolv/basior_scrum_poker"
+  "homepage": "https://github.com/akaWolv/strix-scrum-poker"
 }
