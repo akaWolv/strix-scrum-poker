@@ -209,12 +209,20 @@ class PreviewRoomSpectate extends React.Component {
                             voting_status={voting_status}
                         />
 
-                        <BackBox
-                            backLink={StatesConstants.WELCOME}
-                            backText="Back to main page"
-                            doDisconnectRoom={true}
-                            renderRow={false}
-                        />
+                        <div className="row center-xs">
+                            <div className="col-xs-12  col-sm-6  col-md-6">
+                                <BackBox renderRow={false} />
+                            </div>
+                            <div className="col-xs-12  col-sm-6  col-md-6">
+                                <BackBox
+                                    backLink={StatesConstants.ROOM.replace(':room_id', room_id)}
+                                    backText="Join voting"
+                                    variant="contained"
+                                    renderRow={false}
+                                    icon={BackBox.icon.VOTE}
+                                />
+                            </div>
+                        </div>
                         <Footer renderRow={false}/>
                     </div>
                     <div className="col-xs-12  col-sm-6  col-md-4">

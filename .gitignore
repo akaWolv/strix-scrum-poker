@@ -1,11 +1,11 @@
-Server/node_modules/
+node_modules/
 Server/.idea/
 Server/data/db/
 Server/.env
-Webapp/node_modules/
 Webapp/.idea/
 .idea/
 /Server/storage/votings.json
 /Server/storage/users.json
 /Server/storage/rooms.json
 /Server/storage/users_connections.json
+/Webapp/public/dist/index.html

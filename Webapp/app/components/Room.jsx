@@ -326,15 +326,14 @@ class Room extends React.Component {
             highest_vote,
             lowest_vote
         } = this.state;
+        let view = null;
 
         if (undefined === room_id) {
-            return <div>
-                <center><br/><br/>Connecting to Room...</center>
-            </div>;
+            return <center><br/><br/>Connecting to Room...</center>;
         } else if (undefined === user_id) {
-            return <UserDetails roomId={room_id}/>;
+            view = <UserDetails roomId={room_id}/>;
         } else {
-            return (
+            view = (
                 <div>
                     <div className="row center-xs">
                         <div className="col-xs-12  col-sm-6  col-md-4">
@@ -388,11 +387,21 @@ class Room extends React.Component {
                             />
                         </div>
                     </div>
-                    <BackBox backLink={StatesConstants.WELCOME} backText="Back to dashboard"/>
-                    <Footer/>
                 </div>
             );
         }
+
+        return <div>
+            {view}
+            <BackBox
+                backLink={StatesConstants.ROOM_PREVIEW_ID.replace(':room_id', room_id)}
+                backText="Switch to preview room (TV)"
+                variant="contained"
+                icon={BackBox.icon.TV}
+            />
+            <BackBox/>
+            <Footer/>
+        </div>;
     }
 }
 

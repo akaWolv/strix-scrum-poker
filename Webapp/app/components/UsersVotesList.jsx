@@ -12,7 +12,7 @@ import MapsLocalCafe from '@material-ui/icons/LocalCafe';
 import ActionAccessibility from '@material-ui/icons/Accessibility';
 import ActionHelpOutline from '@material-ui/icons/HelpOutline';
 import Person from '@material-ui/icons/Person';
-import {lime, grey, red, lightBlue, blue} from '@material-ui/core/colors';
+import {lime, grey, red, lightBlue, amber, blue} from '@material-ui/core/colors';
 import PropTypes from "prop-types";
 import List from "@material-ui/core/List";
 import _ from "underscore";
@@ -87,9 +87,9 @@ class UsersVotesList extends React.Component {
         } else if (VotingConstants.STATUS_FINISHED === voting_status) {
             if (undefined !== users_votes[users_id]) {
                 if (lowest_vote === highest_vote) {
-                    color = lightBlue[700];
-                } else if (lowest_vote === users_votes[users_id]) {
                     color = lime[800];
+                } else if (lowest_vote === users_votes[users_id]) {
+                    color = amber[900];
                 } else if (highest_vote === users_votes[users_id]) {
                     color = red[700];
                 }

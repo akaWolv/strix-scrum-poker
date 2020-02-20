@@ -114,10 +114,6 @@ class RoomCreate extends React.Component {
         if (false === stateToSet.room_name_valid || false === stateToSet.room_password_valid) {
             this.setState(stateToSet);
         } else {
-            // if (undefined === this.listeners.join_room) {
-            //     this.listeners.join_room = PokerStore.registerListener(RoomConstants.EVENT_JOINED_ROOM, this.onJoinedRoom.bind(this));
-            // }
-
             PokerActions.create({
                 name: this.state.room_name,
                 password: this.state.room_password,
@@ -157,6 +153,7 @@ class RoomCreate extends React.Component {
                                         <Select
                                             variant="outlined"
                                             name='sequence'
+                                            disabled
                                             value={this.state.sequence}
                                             onChange={this.handleSequenceChange.bind(this)}
                                             style={styles.select_input} >

@@ -196,50 +196,6 @@ function application() {
         //
         //
 
-        // function _pickAdmin(roomsDetails, afterWaitPeriod) {
-        //     _infoLogGlobal('CHECKING ROOM ADMIN', roomsDetails);
-        //     if (undefined !== roomsDetails.users[0]) {
-        //         if (undefined === roomsDetails.admin) {
-        //             _pickAdmin(roomsDetails, true);
-        //         } else {
-        //             // if admin present in room
-        //             for (let a in roomsDetails.users) {
-        //                 if (roomsDetails.admin === roomsDetails.users[a].id) {
-        //                     _infoLogGlobal('CHECKING ROOM ADMIN | same admin');
-        //                     return true;
-        //                 }
-        //             }
-        //         }
-        //     }
-        //
-        //     if (true === afterWaitPeriod) {
-        //         // admin left - pick next user as admin
-        //         if (undefined !== roomsDetails.users[0]) {
-        //             _infoLogGlobal('CHECKING ROOM ADMIN | admin changed');
-        //             let newRoomsDetails = roomsDetails;
-        //             newRoomsDetails.admin = roomsDetails.users[0].id;
-        //             repo.saveRoom(
-        //                 newRoomsDetails,
-        //                 function (err, roomDetails) {
-        //                     roomEmitter(EMIT_ROOM_DETAILS, roomDetails)
-        //                 });
-        //             return true;
-        //         }
-        //     } else {
-        //         // wait few seconds in case of reloading
-        //         setTimeout(function () {
-        //             repo.getRoomDetails(
-        //                 roomsDetails.id,
-        //                 function (err, roomsDetails) {
-        //                     if (undefined !== roomsDetails.id) {
-        //                         _pickAdmin(roomsDetails, true);
-        //                     }
-        //                 }
-        //             )
-        //         }, 5000);
-        //     }
-        // }
-
         function _disconnectUser() {
             _cancelVote();
             let room_id = socket.user_details.room_id;
@@ -247,7 +203,7 @@ function application() {
                 repo.removeRoomConnectionFromUser(
                     socket.user_details.id,
                     function () {
-                        _emitRoomDetails(room_id);
+                        _emitRoomDetails(room_id, '_disconnectUser');
                     }
                 );
             }
@@ -365,7 +321,7 @@ function application() {
             // voting details if exists
             emitVotingDetails(roomsDetails);
 
-            _emitRoomDetails(roomsDetails.id);
+            _emitRoomDetails(roomsDetails.id, 'joinRoom');
 
             _emitUsersThatAlreadyHaveVoted(roomsDetails.id);
         }
@@ -443,7 +399,7 @@ function application() {
                         break;
                 }
 
-                _emitRoomDetails(roomDetails.id)
+                _emitRoomDetails(roomDetails.id, '_changeVotingSatus')
         }
 
         function _emitUsersThatAlreadyHaveVoted() {
@@ -562,7 +518,7 @@ function application() {
          */
         function emitter(socket, name, message) {
             socket.emit(name, message);
-            _infoLog(' [priv] | ' + name, message)
+            _infoLog(' [..priv..] | ' + name)
         }
 
         /**
@@ -624,26 +580,28 @@ function application() {
     }
 
     function ensureAnyUserConnected(roomDetails) {
-        if (roomDetails.users.length === 0) {
-            roomDetails.voting_status = STATUS_PENDING;
-            repo.saveRoom(roomDetails);
+        if (roomDetails.users.length === 0 && roomDetails.voting_status !== STATUS_PENDING) {
+            // roomDetails.voting_status = STATUS_PENDING;
+            repo.saveRoom({
+                id: roomDetails.id,
+                voting_status: STATUS_PENDING
+            });
         }
     }
 
     function _changeAdmin(room_id) {
         repo.getRoomDetails(room_id, function (err, roomDetails) {
-            const adminBefore = undefined === roomDetails.admin ? undefined : roomDetails.admin;
+            const adminBefore = roomDetails.admin;
             if (undefined === roomDetails.id) {
                 return false;
             }
 
             let admin = roomDetails.users.slice(0, 1).shift();
             roomDetails.admin = undefined === admin ? undefined : admin.id;
-            // console.log('>>>>>> roomDetails.admin' + roomDetails.admin);
 
             if (adminBefore !== roomDetails.admin) {
                 repo.saveRoom(roomDetails, function (err, roomDetails) {
-                    _emitRoomDetails(roomDetails.id)
+                    _emitRoomDetails(roomDetails.id, '_changeAdmin')
                 });
             }
         });
@@ -657,6 +615,7 @@ function application() {
                     repo.removeVote(userList[k].id);
                     repo.removeRoomConnectionFromUser(userList[k].id);
                     repo.getRoomDetails(userList[k].room_id, function (err, roomDetails) {
+                       _infoLogGlobal(' [cleanUpOrphansRoomConnections] | ' + roomDetails.id);
                         io.to('room_' + roomDetails.id).emit(EMIT_ROOM_DETAILS, roomDetails);
                     });
                 }
@@ -674,25 +633,23 @@ function application() {
                 );
             }
         });
-
-        // repo.getAllVotes(function (err, votesList) {
-        //     for (let k in votesList) {
-        //         if (0 === CONNECTIONS_LOG.filter(i => i.id === votesList[k].user_id).length) {
-        //             repo.removeVote(votesList[k].user_id);
-        //             _emitRoomDetails(votesList[k].room_id);
-        //         }
-        //     }
-        // });
     }
 
     /**
      * @param room_id
      * @private
      */
-    function _emitRoomDetails(room_id) {
+    function _emitRoomDetails(room_id, invoker) {
         repo.getRoomDetails(room_id, function (err, roomDetails) {
             io.to('room_' + room_id).emit(EMIT_ROOM_DETAILS, roomDetails);
-            _infoLogGlobal(' [ROOM] ' + room_id + '| ' + EMIT_ROOM_DETAILS, roomDetails)
+            _infoLogGlobal(
+                ' [ <ROOM< ] ' + room_id + ' | ' + EMIT_ROOM_DETAILS + ' | ' + invoker,
+                {
+                    name: roomDetails.name,
+                    users: roomDetails.users.length ,
+                    admin: roomDetails.admin || '...'
+                }
+            )
         });
     }
 

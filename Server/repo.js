@@ -128,7 +128,6 @@ repo.getRoomDetails = function(room_id, f) {
     let roomsFound = storage.rooms.find({id: room_id});
 
     let roomDetails = undefined !== roomsFound[0] ? roomsFound[0] : {};
-
     if (undefined !== roomDetails.id) {
         let users = storage.users.find({room_id: roomDetails.id});
         roomDetails.users = undefined !== users ? users : [];

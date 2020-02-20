@@ -6,7 +6,6 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 
 import PokerActions from '../actions/PokerActions';
-import StatesConstants from '../constants/StatesConstants';
 
 import BackBox from '../components/BackBox.jsx';
 import RoomConstants from "../constants/RoomConstants";
@@ -138,7 +137,7 @@ class PreviewRoomJoin extends React.Component {
                         </div>
                     </div>
                 </div>
-                <BackBox backLink={StatesConstants.WELCOME} backText="Back to main page"/>
+                <BackBox />
             </div>
         );
     }

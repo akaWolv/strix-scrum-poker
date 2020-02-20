@@ -7,8 +7,6 @@ import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 
 import PokerActions from '../actions/PokerActions';
-import StatesConstants from '../constants/StatesConstants';
-import BackBox from '../components/BackBox.jsx';
 import PokerStore from "../stores/PokerStore";
 
 const styles = {
@@ -44,7 +42,7 @@ const texts = {
     box_title: 'User details',
     input_label_user_name: 'Your name',
     user_name_invalid: 'Invalid name',
-    save_button: 'Save',
+    save_button: 'Join',
     user_name_already_exists: 'User already exists'
 };
 
@@ -89,34 +87,31 @@ class UserDetails extends React.Component {
 
     render() {
         return (
-            <div>
-                <div className="row center-xs">
-                    <div className="col-xs-12  col-sm-6  col-md-4">
-                        <div className="box">
-                            <Paper style={styles.paper} elevation={1}>
-                                <div style={styles.form_box}>
-                                    <h4>{texts.box_title}</h4>
-                                    <TextField
-                                        variant="outlined"
-                                        label={texts.input_label_user_name}
-                                        style={styles.text_input}
-                                        name="user_name"
-                                        value={this.state.user_name}
-                                        onChange={this.collectInputValue.bind(this)}
-                                        helperText={this.state.user_name_error}/>
-                                </div>
-                                <Button
-                                    color="primary"
-                                    variant="contained"
-                                    style={styles.button}
-                                    onClick={this.handleSave.bind(this)}>
-                                    {texts.save_button}
-                                </Button>
-                            </Paper>
-                        </div>
+            <div className="row center-xs">
+                <div className="col-xs-12  col-sm-6  col-md-4">
+                    <div className="box">
+                        <Paper style={styles.paper} elevation={1}>
+                            <div style={styles.form_box}>
+                                <h4>{texts.box_title}</h4>
+                                <TextField
+                                    variant="outlined"
+                                    label={texts.input_label_user_name}
+                                    style={styles.text_input}
+                                    name="user_name"
+                                    value={this.state.user_name}
+                                    onChange={this.collectInputValue.bind(this)}
+                                    helperText={this.state.user_name_error}/>
+                            </div>
+                            <Button
+                                color="primary"
+                                variant="contained"
+                                style={styles.button}
+                                onClick={this.handleSave.bind(this)}>
+                                {texts.save_button}
+                            </Button>
+                        </Paper>
                     </div>
                 </div>
-                <BackBox backLink={StatesConstants.WELCOME} backText="Back to main page"/>
             </div>
         );
     }
