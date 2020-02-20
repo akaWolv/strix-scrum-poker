@@ -1,16 +1,23 @@
 require('dotenv').config();
 const app = require('express')();
+const fs = require('fs');
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
-const crypto = require('crypto');
 const uuid = require('uuid');
 // var mongojs = require('mongojs');
 const _ = require('underscore');
 const repo = require('./repo');
 const Table = require("terminal-table");
 
-app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html');
+const path = require('path');
+app.get('/socket.io/*', function (req, res) {
+    // res.sendFile(path.resolve(__dirname + '/../Webapp/public/index.html'));
+});
+app.get('/bundle.js', function (req, res) {
+    res.sendFile(path.resolve(__dirname + '/../Webapp/public/dist/bundle.js'));
+});
+app.get('/*', function (req, res) {
+    res.sendFile(path.resolve(__dirname + '/../Webapp/public/index.html'));
 });
 
 // SYSTEM
@@ -22,16 +29,12 @@ const REGISTER_NEW_USER = 'register_new_user';
 const REGISTER_USER_BY_ID = 'register_user_by_id';
 const EMIT_USER_DETAILS = 'user_details';
 const EMIT_REGISTER_USER_FAIL = 'register_user_fail';
-const EMIT_REGISTER_USER_SUCCESS = 'register_user_success';
 const EMIT_USER_NOT_FOUND = 'user_not_found';
-
-const EMIT_INTRODUCE_YOURSELF = 'hello';
 
 // ROOM
 const PREVIEW_ROOM = 'preview_room';
 const CREATE_ROOM = 'create_room';
 const EMIT_CREATE_ROOM_FAIL = 'create_room_fail';
-const EMIT_CREATE_ROOM_SUCCESS = 'create_room_success';
 const EMIT_ROOM_DETAILS = 'room_details';
 const EMIT_ROOM_NOT_FOUND = 'room_not_found';
 const EMIT_JOIN_ROOM_SUCCESS = 'join_room_success';
@@ -58,6 +61,10 @@ const EMIT_KEEP_PREVIOUS_USERS_VOTES = 'keep_previous_users_votes';
 const EMIT_FORGET_PREVIOUS_USERS_VOTES = 'forget_previous_users_votes';
 
 const CONNECTIONS_LOG = [];
+
+const PORT = process.env.PORT || 3003;
+
+console.log('Initializing server with port ' + PORT);
 
 function application() {
 
@@ -598,6 +605,7 @@ function application() {
 
             let admin = roomDetails.users.slice(0, 1).shift();
             roomDetails.admin = undefined === admin ? undefined : admin.id;
+            // console.log('>>>>>> roomDetails.admin' + roomDetails.admin);
 
             if (adminBefore !== roomDetails.admin) {
                 repo.saveRoom(roomDetails, function (err, roomDetails) {
@@ -713,8 +721,8 @@ function application() {
         console.log(logDate + '|' + log_name + '|' + JSON.stringify(info_log));
     }
 
-    http.listen(3003, function () {
-        console.log('listening on *:3003');
+    http.listen(PORT, function () {
+        console.log(`listening on *:${PORT}`);
     });
 }
 
