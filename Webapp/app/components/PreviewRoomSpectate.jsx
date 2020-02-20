@@ -20,13 +20,15 @@ import BackBox from "../components/BackBox.jsx";
 import UsersVotesList from "../components/UsersVotesList.jsx";
 import Footer from "../components/Footer";
 
-import QRCode from 'qrcode.react';
+// import QRCode from 'qrcode.react';
+import QRCode from 'react-google-qrcode';
 
 const styles = {
     paper: {
         padding: 20,
         marginBottom: 10,
-        textAlign: 'left'
+        textAlign: 'left',
+        backgroundColor: 'transparent'
     },
     button: {
         width: '100%'
@@ -193,11 +195,13 @@ class PreviewRoomSpectate extends React.Component {
                 <div className="row center-xs">
                     <div className="col-xs-12  col-sm-6  col-md-4">
                         <div className="box">
-                            <Paper style={styles.paper} elevation={1}>
+                            <Paper style={styles.paper} elevation={12}>
                                 <center>
                                     <QRCode
                                         size={300}
-                                        value={qr_url}/>
+                                        data={qr_url}
+                                        alt={qr_url}
+                                        framed />
                                 </center>
                             </Paper>
                         </div>

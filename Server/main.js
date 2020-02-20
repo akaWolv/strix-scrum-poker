@@ -299,11 +299,11 @@ function application() {
             socket.user_details.room_id = roomsDetails.id;
             if (true === (undefined === isPreview ? false : isPreview)) {
                 socket.emit(EMIT_JOIN_ROOM_PREVIEW, roomsDetails);
-                _infoLog('EMIT_JOIN_ROOM_PREVIEW');
+                _infoLog(' [ EMIT_JOIN_ROOM_PREVIEW ] ');
             } else if (socket.user_details.id === undefined) {
                 // roomsDetails.users = [];
                 socket.emit(EMIT_JOIN_ROOM_ANONYMOUS, roomsDetails);
-                _infoLog('EMIT_JOIN_ROOM_ANONYMOUS');
+                _infoLog(' [ EMIT_JOIN_ROOM_ANONYMOUS ] ');
             } else {
                 // save user
                 repo.saveUser(
@@ -637,13 +637,14 @@ function application() {
 
     /**
      * @param room_id
+     * @param invoker
      * @private
      */
     function _emitRoomDetails(room_id, invoker) {
         repo.getRoomDetails(room_id, function (err, roomDetails) {
             io.to('room_' + room_id).emit(EMIT_ROOM_DETAILS, roomDetails);
             _infoLogGlobal(
-                ' [ <ROOM< ] ' + room_id + ' | ' + EMIT_ROOM_DETAILS + ' | ' + invoker,
+                ' [ <ROOM< ] ' + invoker + ' | ' + EMIT_ROOM_DETAILS + ' | ' + room_id,
                 {
                     name: roomDetails.name,
                     users: roomDetails.users.length ,
