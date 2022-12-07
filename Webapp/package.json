@@ -4,7 +4,7 @@
   "description": "strix scrum poker solution",
   "main": "main.js",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.18.2"
   },
   "engines": {
     "node": "10.x"
